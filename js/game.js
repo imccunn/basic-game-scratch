@@ -65,8 +65,29 @@ function clamp(x, min, max) {
 
 function draw() {
 	fillBackDefault();
-	canvas.strokeRect(0, 0, canvasWidth, canvasHeight);
+	// canvas.strokeRect(0, 0, canvasWidth, canvasHeight);
 	canvas.drawImage(image, playerX, playerY);
+	drawStars();
+}
+
+function drawRect(clr, posx, posy, size) {
+    canvas.beginPath();
+    canvas.rect(posx, posy, size, size);
+    canvas.fillStyle = clr;
+    canvas.fill();
+}
+
+function drawStars() {
+	for (var i = 0; i < 50; i++) {
+		var x = getRandomInt(1, canvasWidth);
+		var y = getRandomInt(1, canvasHeight);
+		var size = getRandomInt(1, 4);
+		drawRect('#fff', x, y, size);
+	}
+}
+
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min) + min);
 }
 
 
