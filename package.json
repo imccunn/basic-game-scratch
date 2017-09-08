@@ -1,0 +1,11 @@
+{
+  "name": "basic-game-scratch",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/imccunn/basic-game-scratch.git",
+  "author": "imccunn <ianmcunn@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.15.4"
+  }
+}
