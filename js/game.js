@@ -216,9 +216,10 @@ function playSound(buffer) {
   source.buffer = buffer;
   source.connect(context.destination);
   source.start(0);
-
 }
+
 loadSound();
+
 gunShot = null;
 function loadSound() {
   var audioURL = 'test.mp3';
