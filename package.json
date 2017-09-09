@@ -6,6 +6,7 @@
   "author": "imccunn <ianmcunn@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "eslint": "^4.6.1",
     "express": "^4.15.4"
   }
 }
