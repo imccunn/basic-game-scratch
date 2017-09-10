@@ -1,4 +1,19 @@
-// game.js
+
+var bulletSound = null;
+var score = 0;
+let FPS = 10;
+
+var gameModel = {
+	update: function() {
+		update();
+		draw();
+		window.requestAnimationFrame(gameModel.update)
+	}
+}
+
+// window.requestAnimationFrame(gameModel.update)
+
+
 
 var canvasWidth = window.innerWidth;
 var canvasHeight = window.innerHeight;
@@ -26,20 +41,27 @@ var image = new Image();
 image.src = 'medfighter.png';
 var plr = {
 	bullets: [],
+	speed: 10,
 	canShoot: true,
-	bulletTimeout: 5
+	bulletTimeout: 10,
+	width: 32,
+	height: 32
 };
 
+var numEnemies = 20
 var enemies = [];
-for (var i = 0; i < 20; i++) {
+for (var i = 0; i < numEnemies; i++) {
 	enemies.push({
 		x: getRandomInt(1, canvasWidth),
 		y: -20,
-		speed: getRand(3, 6)
+		speed: getRand(1, 3.5),
+		width: 40,
+		height: 40,
+		dead: false
 	});
 }
-var playerX = (canvasWidth/2) - (image.width/2);
-var playerY = (canvasHeight/2) - (image.width/2);
+var playerX = (canvasWidth / 2) - (image.width / 2);
+var playerY = (canvasHeight / 2) - (image.width / 2);
 
 function fillBackDefault() {
     canvas.beginPath();
@@ -53,20 +75,21 @@ function update() {
 	updatePlayer();
 	updateEnemies();
 	updateStars();
+	explosionSprite.update();
 }
 
 function updatePlayer() {
 	if (keysDown[65]) { //A
-		playerX -= 10;
+		playerX -= plr.speed;
 	}
 	if (keysDown[87]) { //W
-		playerY -= 10;
+		playerY -= plr.speed;
 	}
 	if (keysDown[68]) { //D
-		playerX += 10;
+		playerX += plr.speed;
 	}
 	if (keysDown[83]) { //S
-		playerY += 10;
+		playerY += plr.speed;
 	}
 
 	if (keysDown[32]) {
@@ -84,22 +107,44 @@ function updatePlayer() {
 function updateEnemies() {
 	enemies.forEach(function(e) {
 		e.y += e.speed;
-		if (e.y > canvasWidth) {
+		if (e.y > canvasHeight) {
 			e.x = getRandomInt(1, canvasWidth)
-			e.y = -10;
+			e.y = -200;
+			e.dead = false;
+		}
+		if (plr.bullets) {
+			plr.bullets.forEach(function(b) {
+				if (checkCollision(b, e)) {
+					if (!e.dead) {
+						playSound(enemyExplosion);
+						explosionSprite.x = e.x;
+						explosionSprite.y = e.y
+						explosionSprite.render();
+						b.dead = true;
+						e.dead = true;
+						score++
+					}
+				}
+			});
 		}
 	});
-
 }
 
 function clamp(x, min, max) {
 	return x < min ? min : (x > max ? max : x);
 }
 
+function drawText() {
+	canvas.font = '36px serif';
+	canvas.fillStyle = '#ff0000';
+  canvas.fillText('Score: ' + score, 20, 50);
+}
+
 function draw() {
 	fillBackDefault();
 	canvas.strokeRect(0, 0, canvasWidth, canvasHeight);
 	canvas.drawImage(image, playerX, playerY);
+	drawText();
 	drawBullets();
 	drawStars();
 	drawEnemies();
@@ -124,16 +169,16 @@ stars = stars.map(function(s) {
 		y: getRandomInt(1, canvasHeight),
 		distance: distance,
 		size: size,
+		speed: 0.5 * -distance,
 		trail: trail
 	};
 });
-console.log('stars: ', stars);
 
 function updateStars() {
 	stars.forEach(function(s) {
-		s.y += 2 + s.distance;
+		s.y += 0.2 + s.distance;
 		if (s.y > canvasHeight) {
-			s.y = -1;
+			s.y = -10;
 			s.x = getRandomInt(1, canvasWidth);
 		}
 	});
@@ -150,49 +195,49 @@ function drawStars() {
 		}
 	});
 }
+
 function playerFired() {
 	plr.bulletTimeout = 10;
 }
+
+var shotsFired = 0;
 var modifier = 1;
 function drawBullets() {
-	let bulletSpeed = 20;
-
+	let bulletSpeed = 10;
+	plr.bullets = plr.bullets.filter(function(b) {
+		var stillActive = true;
+		if (b.y < 0 || b.dead) stillActive = false;
+		return stillActive;
+	});
 	for (var i = 0; i < plr.bullets.length; i++) {
 		let bul = plr.bullets[i];
 		bul.y -= bulletSpeed;
 	}
-	plr.bullets = plr.bullets.filter(function(b) {
-		return b.y > 0;
-	});
 
 	if (plr.bulletTimeout !== 0) plr.bulletTimeout -= modifier;
 	if (plr.shooting && plr.canShoot && plr.bulletTimeout === 0) {
-			playSound(gunShot)
+			shotsFired++;
+			playSound(bulletSound)
 			plr.bullets.push({
-				x: plr.x,
-				y: plr.y
+				x: plr.x + (plr.width),
+				y: plr.y,
+				width: 5,
+				height: 5,
+				dead: false
 			});
 			plr.bulletTimeout = 10;
 	}
 	for (var i = 0; i < plr.bullets.length; i++) {
 			let bul = plr.bullets[i];
-			drawRect('#ff0000', bul.x, bul.y, 5);
+			if (!bul.dead) drawRect('#fff', bul.x, bul.y, 10);
 	}
 }
 
 function drawEnemies() {
 	enemies.forEach(function(e) {
-		drawRect('#00ff00', e.x, e.y, 10);
+		if (!e.dead) drawRect('#00ff00', e.x, e.y, e.width);
 	});
 }
-// function drawStars() {
-// 	for (var i = 0; i < 50; i++) {
-// 		var x = getRandomInt(1, canvasWidth);
-// 		var y = getRandomInt(1, canvasHeight);
-// 		var size = getRandomInt(1, 4);
-// 		drawRect('#fff', x, y, size);
-// 	}
-// }
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min) + min);
@@ -203,11 +248,22 @@ function getRand(min, max) {
 }
 
 
-var FPS = 30;
-setInterval(function() {
-	update();
-	draw();
-}, 1000 / FPS);
+function checkCollision(source, target) {
+	var sourceXLo = source.x;
+	var sourceXHi = sourceXLo + source.width;
+	var sourceYLo = source.y;
+	var sourceYHi = sourceYLo + source.height;
+
+	var targetXLo = target.x;
+	var targetXHi = targetXLo + target.width;
+	var targetYLo = target.y;
+	var targetYHi = targetYLo + target.height;
+
+	var xOverlap = (sourceXLo <= targetXHi) && (sourceXHi >= targetXLo);
+	var yOverlap = (sourceYLo <= targetYHi) && (sourceYHi >= targetYLo);
+
+	return xOverlap && yOverlap;
+}
 
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 var context = new AudioContext();
@@ -218,20 +274,15 @@ function playSound(buffer) {
   source.start(0);
 }
 
-loadSound();
-
-gunShot = null;
-function loadSound() {
-  var audioURL = 'test.mp3';
-  var request = new XMLHttpRequest();
-  request.open("GET", audioURL, true);
+function loadSound(path, cb) {
+  let request = new XMLHttpRequest();
+  request.open('GET', path, true);
   request.responseType = 'arraybuffer';
   request.onload = function() {
-		console.log('recieved')
     context.decodeAudioData(request.response, function(buffer) {
       if (buffer) {
-				gunShot = buffer;
-        // playSound(buffer);
+				buf = buffer;
+        cb(buffer)
       }
     }, function(error) {
 			console.log('error: ', error)
@@ -239,3 +290,74 @@ function loadSound() {
   };
   request.send();
 }
+
+var explosionImage = new Image();
+explosionImage.src = 'images/explosion_3.png';
+
+var explosionSprite = sprite({
+	context: canvas,
+	width: 97,
+	height: 4365,
+	image: explosionImage,
+	numFrames: 45,
+	x: 0,
+	y: 0
+});
+
+function doExplosionSprite() {
+	explosionSprite.update();
+	explosionSprite.render();
+}
+
+function sprite(opt) {
+	var sprite = {
+		context: opt.context,
+		width: opt.width,
+		height: opt.height,
+		image: opt.image,
+		numFrames: opt.numFrames,
+		x: opt.x,
+		y: opt.y
+	};
+	var frameIndex = 0;
+	var tickCount = 0;
+	var ticksPerFrame = 1;
+
+	sprite.render = function() {
+		sprite.context.clearRect(0, 0, sprite.width, sprite.height);
+		sprite.context.drawImage(
+			sprite.image, // image object
+			0, // sx
+			frameIndex * sprite.height / sprite.numFrames, // sy
+			sprite.width, //sw
+			sprite.height / sprite.numFrames , // sh
+			sprite.x, // dx
+			sprite.y, // dy
+			sprite.width, // dw
+			sprite.height / sprite.numFrames // dh
+		);
+	};
+	sprite.update = function() {
+		tickCount += 1;
+		if (frameIndex === 49) frameIndex = 0;
+		if (tickCount > ticksPerFrame) {
+			tickCount = 0;
+			if (frameIndex < sprite.numFrames - 1) {
+				frameIndex++;
+			}
+		}
+	}
+	return sprite;
+}
+
+loadSound('test.mp3', function(buff) {
+	bulletSound = buff;
+	loadSound('test2.mp3', function(buff) {
+		enemyExplosion = buff;
+		gameModel.update();
+		// setInterval(function() {
+		// 	update();
+		// 	draw();
+		// }, 1000 / FPS);
+	});
+});
