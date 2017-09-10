@@ -350,9 +350,9 @@ function sprite(opt) {
 	return sprite;
 }
 
-loadSound('test.mp3', function(buff) {
+loadSound('audio/test.mp3', function(buff) {
 	bulletSound = buff;
-	loadSound('test2.mp3', function(buff) {
+	loadSound('audio/test2.mp3', function(buff) {
 		enemyExplosion = buff;
 		gameModel.update();
 		// setInterval(function() {
