@@ -1,8 +1,12 @@
 
 var bulletSound = null;
 var score = 0;
+var highScore = 0;
 let FPS = 10;
-
+var time = 0;
+var timer = setInterval(function() {
+	time++;
+}, 1000);
 var gameModel = {
 	update: function() {
 		update();
@@ -10,10 +14,6 @@ var gameModel = {
 		window.requestAnimationFrame(gameModel.update)
 	}
 }
-
-// window.requestAnimationFrame(gameModel.update)
-
-
 
 var canvasWidth = window.innerWidth;
 var canvasHeight = window.innerHeight;
@@ -39,29 +39,37 @@ var canvas = $('#c')[0].getContext('2d');
 
 var image = new Image();
 image.src = 'medfighter.png';
+var playerX = (canvasWidth / 2) - (image.width / 2);
+var playerY = (canvasHeight / 2) - (image.width / 2);
 var plr = {
 	bullets: [],
 	speed: 10,
 	canShoot: true,
 	bulletTimeout: 10,
+	x: playerX,
+	y: playerY,
 	width: 32,
 	height: 32
 };
 
 var numEnemies = 20
 var enemies = [];
-for (var i = 0; i < numEnemies; i++) {
-	enemies.push({
-		x: getRandomInt(1, canvasWidth),
-		y: -20,
-		speed: getRand(1, 3.5),
-		width: 40,
-		height: 40,
-		dead: false
-	});
+function initEnemies() {
+	enemies = [];
+	for (var i = 0; i < numEnemies; i++) {
+		enemies.push({
+			x: getRandomInt(1, canvasWidth),
+			y: -20,
+			speed: getRand(1, 3.5),
+			width: 40,
+			height: 40,
+			dead: false
+		});
+	}
 }
-var playerX = (canvasWidth / 2) - (image.width / 2);
-var playerY = (canvasHeight / 2) - (image.width / 2);
+
+initEnemies();
+
 
 function fillBackDefault() {
     canvas.beginPath();
@@ -75,21 +83,20 @@ function update() {
 	updatePlayer();
 	updateEnemies();
 	updateStars();
-	explosionSprite.update();
 }
 
 function updatePlayer() {
 	if (keysDown[65]) { //A
-		playerX -= plr.speed;
+		plr.x -= plr.speed;
 	}
 	if (keysDown[87]) { //W
-		playerY -= plr.speed;
+		plr.y -= plr.speed;
 	}
 	if (keysDown[68]) { //D
-		playerX += plr.speed;
+		plr.x += plr.speed;
 	}
 	if (keysDown[83]) { //S
-		playerY += plr.speed;
+		plr.y += plr.speed;
 	}
 
 	if (keysDown[32]) {
@@ -98,19 +105,56 @@ function updatePlayer() {
 		plr.shooting = false;
 	}
 
-	playerX = clamp(playerX, 0, canvasWidth - image.width);
-	playerY = clamp(playerY, 0, canvasHeight - image.height);
-	plr.x = playerX;
-	plr.y = playerY;
+	plr.x = clamp(plr.x, 0, canvasWidth - image.width);
+	plr.y = clamp(plr.y, 0, canvasHeight - image.height);
+	if (plr.dead) {
+		score = 0;
+		plr.x = -100;
+		plr.y = -100;
+		plr.deathTimeout--;
+		if (plr.deathTimeout === 0) {
+			plr.x = window.innerWidth / 2;
+			plr.y = window.innerHeight - 300;
+			plr.dead = false;
+			enemies.forEach(function(e) {
+				e.y = -200;
+			});
+			timer = setInterval(function() {
+				time++;
+			}, 1000);
+			initEnemies();
+		}
+	}
 }
 
 function updateEnemies() {
+	if (time !== 0 && time % 10 === 0) {
+		for (var i = 0; i < 1; i++) {
+			enemies.push({
+				x: getRandomInt(1, canvasWidth),
+				y: -20,
+				speed: getRand(1, 3.5),
+				width: 40,
+				height: 40,
+				dead: false
+			})
+		}
+	}
 	enemies.forEach(function(e) {
 		e.y += e.speed;
 		if (e.y > canvasHeight) {
 			e.x = getRandomInt(1, canvasWidth)
-			e.y = -200;
+			e.y = -400;
 			e.dead = false;
+		}
+		if (!e.dead && checkCollision(e, plr)) {
+			playSound(enemyExplosion);
+			plr.dead = true;
+			plr.deathTimeout = 300;
+			if (score > highScore) highScore = score;
+			score = 0;
+			time = 0;
+			clearInterval(timer);
 		}
 		if (plr.bullets) {
 			plr.bullets.forEach(function(b) {
@@ -135,19 +179,27 @@ function clamp(x, min, max) {
 }
 
 function drawText() {
-	canvas.font = '36px serif';
+	canvas.font = '28px monospace';
 	canvas.fillStyle = '#ff0000';
   canvas.fillText('Score: ' + score, 20, 50);
+	canvas.fillText('High Score: ' + highScore, 20, 100);
+	canvas.fillText('time: ' + time, 20, 150);
 }
 
 function draw() {
 	fillBackDefault();
 	canvas.strokeRect(0, 0, canvasWidth, canvasHeight);
-	canvas.drawImage(image, playerX, playerY);
+	drawPlayer();
 	drawText();
 	drawBullets();
 	drawStars();
 	drawEnemies();
+}
+
+function drawPlayer() {
+	if (!plr.dead) {
+		canvas.drawImage(image, plr.x, plr.y);
+	}
 }
 
 function drawRect(clr, posx, posy, size) {
@@ -215,7 +267,7 @@ function drawBullets() {
 	}
 
 	if (plr.bulletTimeout !== 0) plr.bulletTimeout -= modifier;
-	if (plr.shooting && plr.canShoot && plr.bulletTimeout === 0) {
+	if (!plr.dead && plr.shooting && plr.canShoot && plr.bulletTimeout === 0) {
 			shotsFired++;
 			playSound(bulletSound)
 			plr.bullets.push({
@@ -229,7 +281,7 @@ function drawBullets() {
 	}
 	for (var i = 0; i < plr.bullets.length; i++) {
 			let bul = plr.bullets[i];
-			if (!bul.dead) drawRect('#fff', bul.x, bul.y, 10);
+			if (!bul.dead) drawRect('#f97f04', bul.x, bul.y, 10);
 	}
 }
 
