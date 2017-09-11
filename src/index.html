@@ -3,22 +3,37 @@
 
 	<head>
 		<meta charset="utf-8">
-		<title>Basic Game</title>
+		<title>Game</title>
 		<style type="text/css">
 			canvas {
 				border: 1px solid #000;
+				margin: auto;
 			}
+
 			body {
 				margin: 0;
 				overflow: hidden;
+				background-color: #333;
+			}
+
+			.container {
+				text-align: center;
+			}
+
+			#stats {
+				position: fixed;
+				top: 0;
+				left: 0;
 			}
 		</style>
 	</head>
 	<body>
-		<canvas id="c"></canvas>
-		<!-- <canvas id="explosion"></canvas> -->
+		<canvas id="stats"></canvas>
+		<div class="container">
+			<canvas id="c"></canvas>
+		</div>
 		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-		<script type="text/javascript" src="js/game.js"></script>
+		<script type="text/javascript" src="dist.js"></script>
 	</body>
 
 </html>
