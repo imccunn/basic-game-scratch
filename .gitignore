@@ -1,3 +1,4 @@
 vendor/
 _audio/
 node_modules/
+*.log

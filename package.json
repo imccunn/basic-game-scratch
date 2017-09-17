@@ -5,6 +5,9 @@
   "repository": "https://github.com/imccunn/basic-game-scratch.git",
   "author": "imccunn <ianmcunn@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "dev": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js"
+  },
   "dependencies": {
     "eslint": "^4.6.1",
     "express": "^4.15.4"
