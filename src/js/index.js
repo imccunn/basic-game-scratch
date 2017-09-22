@@ -2,39 +2,22 @@
 import path from 'path';
 import { clamp } from './util';
 import Player from './model/Player';
+import gameModel from './model/GameModel';
+import initStars from './model/Stars';
+
+console.log('Game starting...');
+
+var stars = initStars();
+
+const WIDTH = gameModel.width
+const HEIGHT = gameModel.height;
 
 var bulletSound = null;
 var enemyExplosion = null;
 var score = 0;
 var highScore = 0;
 let FPS = 10;
-
-
 let animator = null;
-var canvasWidth = 1100;
-var canvasHeight = window.innerHeight;
-
-var gameModel = {
-	width: canvasWidth,
-	height: canvasHeight,
-	timer: null,
-	time: null,
-	active: true,
-	initEnemies: null,
-	update: function() {
-		animator = window.requestAnimationFrame(gameModel.update)
-		update();
-		draw();
-
-	}
-}
-
-gameModel.time = 0;
-gameModel.timer = setInterval(function() {
-	if (gameModel.active) {
-		gameModel.time++;
-	}
-}, 1000);
 
 var keysDown = {};
 
@@ -47,7 +30,7 @@ $('body').bind('keyup', function(e) {
 	if (e.which === 80) {
 		gameModel.active = !gameModel.active;
 		if (gameModel.active === true) {
-			animator = window.requestAnimationFrame(gameModel.update);
+			gameModel.animator = window.requestAnimationFrame(gameModel.update);
 			playSound(clickSound);
 		} else {
 			playSound(clickSound);
@@ -62,8 +45,8 @@ $('body').bind('keyup', function(e) {
 });
 
 var canvas = $('#c')[0].getContext('2d');
-$('#c').attr('width', canvasWidth);
-$('#c').attr('height', canvasHeight);
+$('#c').attr('width', WIDTH);
+$('#c').attr('height', HEIGHT);
 var statsCtx = $('#stats')[0].getContext('2d')
 $('#stats').attr('width', 200);
 $('#stats').attr('height', 200);
@@ -79,8 +62,8 @@ plr.bullets = [];
 plr.speed = 10;
 plr.canShoot = true;
 plr.bulletTimeout = 15;
-plr.x = (canvasWidth / 2);
-plr.y = (canvasHeight / 2);
+plr.x = (gameModel.width / 2);
+plr.y = (gameModel.height / 2);
 plr.width = 85;
 plr.height = 85;
 
@@ -90,7 +73,7 @@ function initEnemies() {
 	enemies = [];
 	for (var i = 0; i < numEnemies; i++) {
 		enemies.push({
-			x: getRandomInt(1, canvasWidth-40),
+			x: getRandomInt(1, gameModel.width - 40),
 			y: -20,
 			speed: getRand(1, 3.5),
 			width: 40,
@@ -103,9 +86,15 @@ function initEnemies() {
 initEnemies();
 gameModel.enemies = enemies;
 gameModel.initEnemies = initEnemies;
+gameModel.update = function() {
+	gameModel.animator = window.requestAnimationFrame(gameModel.update)
+	update();
+	draw();
+}
+
 function fillBackDefault() {
   canvas.beginPath();
-  canvas.rect(0, 0, canvasWidth, canvasHeight);
+  canvas.rect(0, 0, gameModel.width, gameModel.height);
   canvas.fillStyle = '#000';
   canvas.fill();
   canvas.closePath();
@@ -121,7 +110,7 @@ function updateEnemies() {
 	if (gameModel.time !== 0 && gameModel.time % 10 === 0) {
 		for (var i = 0; i < 1; i++) {
 			enemies.push({
-				x: getRandomInt(10, canvasWidth-50),
+				x: getRandomInt(10, gameModel.width - 50),
 				y: -20,
 				speed: getRand(1, 3.5),
 				width: 40,
@@ -134,7 +123,7 @@ function updateEnemies() {
 		e.y += e.speed;
 	});
 	enemies = enemies.filter(function(e) {
-		return e.y < canvasHeight;
+		return e.y < gameModel.height;
 	});
 	enemies.forEach(function(e) {
 		if (!e.dead && checkCollision(e, plr)) {
@@ -168,7 +157,7 @@ function drawPausedText() {
 	canvas.font = '48px monospace';
 	canvas.textAlign = 'center';
 	canvas.fillStyle = '#ff0000';
-	canvas.fillText('Paused', canvasWidth / 2, canvasHeight / 2);
+	canvas.fillText('Paused', gameModel.width / 2, gameModel.height / 2);
 }
 
 function drawText() {
@@ -185,7 +174,6 @@ function drawText() {
 
 function draw() {
 	fillBackDefault();
-	// canvas.strokeRect(0, 0, acanvasWidth, canvasHeight);
 	drawPlayer();
 	drawText();
 	drawBullets();
@@ -211,40 +199,14 @@ function drawRect(clr, posx, posy, size) {
   canvas.fill();
 }
 
-var stars = [];
-stars.length = 150;
-stars.fill({});
-stars = stars.map(function(s) {
-	var distance = Math.random();
-	var size = distance < 0.9 ? getRand(0.5, 2) : getRand(2, 4);
-	var trail = distance > 0.9 ? getRandomInt(5, 11) : null;
-	let randClr = getRandomInt(1, 3);
-	let clr = null;
-	switch(randClr) {
-		case 1: clr = '#ffff00a';
-			break;
-		case 2: clr = '#aaaaff';
-			break;
-		case 3: clr = '#0000ff';
-			break;
-	}
-	return {
-		x: getRandomInt(1, canvasWidth),
-		y: getRandomInt(1, canvasHeight),
-		distance: distance,
-		size: size,
-		speed: 0.01 * -distance,
-		trail: trail,
-		clr: clr
-	};
-});
+
 
 function updateStars() {
 	stars.forEach(function(s) {
 		s.y += 0.4 * s.distance;
-		if (s.y > canvasHeight) {
+		if (s.y > gameModel.height) {
 			s.y = -10;
-			s.x = getRandomInt(1, canvasWidth);
+			s.x = getRandomInt(1, gameModel.width);
 		}
 	});
 }
