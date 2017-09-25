@@ -9,18 +9,18 @@ export default class Entity {
   }
 
   collision(target) {
-    var sourceXLo = this.x;
-    var sourceXHi = sourceXLo + this.width;
-    var sourceYLo = this.y;
-    var sourceYHi = sourceYLo + this.height;
+    const sourceXLo = this.x;
+    const sourceXHi = sourceXLo + this.width;
+    const sourceYLo = this.y;
+    const sourceYHi = sourceYLo + this.height;
 
-    var targetXLo = target.x;
-    var targetXHi = targetXLo + target.width;
-    var targetYLo = target.y;
-    var targetYHi = targetYLo + target.height;
+    const targetXLo = target.x;
+    const targetXHi = targetXLo + target.width;
+    const targetYLo = target.y;
+    const targetYHi = targetYLo + target.height;
 
-    var xOverlap = (sourceXLo <= targetXHi) && (sourceXHi >= targetXLo);
-    var yOverlap = (sourceYLo <= targetYHi) && (sourceYHi >= targetYLo);
+    const xOverlap = (sourceXLo <= targetXHi) && (sourceXHi >= targetXLo);
+    const yOverlap = (sourceYLo <= targetYHi) && (sourceYHi >= targetYLo);
 
     return xOverlap && yOverlap;
   }

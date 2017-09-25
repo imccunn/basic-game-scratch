@@ -1,6 +1,6 @@
 
 function clamp(x, min, max) {
-	return x < min ? min : (x > max ? max : x);
+  return x < min ? min : (x > max ? max : x);
 }
 
 function getRandomInt(min, max) {
@@ -8,11 +8,11 @@ function getRandomInt(min, max) {
 }
 
 function getRand(min, max) {
-	return Math.random() * (max - min) + min;
+  return Math.random() * (max - min) + min;
 }
 
 export {
   clamp,
-	getRandomInt,
-	getRand
+  getRandomInt,
+  getRand
 }
