@@ -3,8 +3,14 @@ import path from 'path';
 import { clamp } from './util';
 import Player from './model/Player';
 import Enemy from './model/Enemy';
+import Bullet from './model/Bullet';
 import gameModel from './model/GameModel';
 import initStars from './model/Stars';
+
+import {
+  fillBackDefault,
+  drawRect
+} from './view';
 
 console.log('Game starting...');
 
@@ -93,14 +99,6 @@ gameModel.update = function() {
 	draw();
 }
 
-function fillBackDefault() {
-  canvas.beginPath();
-  canvas.rect(0, 0, gameModel.width, gameModel.width);
-  canvas.fillStyle = '#000';
-  canvas.fill();
-  canvas.closePath();
-}
-
 function update() {
 	plr.update(keysDown);
 	updateEnemies();
@@ -115,7 +113,7 @@ function updateEnemies() {
 		return e.y < gameModel.height;
 	});
 	enemies.forEach(function(e) {
-		if (!e.dead && e.checkCollision(plr)) {
+		if (!e.dead && e.collision(plr)) {
 			playSound(enemyExplosion);
 			plr.dead = true;
 			plr.deathTimeout = 300;
@@ -126,7 +124,7 @@ function updateEnemies() {
 		}
 		if (plr.bullets) {
 			plr.bullets.forEach(function(b) {
-				if (checkCollision(b, e)) {
+				if (b.collision(e)) {
 					if (!e.dead) {
 						playSound(enemyExplosion);
 						explosionSprite.x = e.x;
@@ -162,7 +160,7 @@ function drawText() {
 }
 
 function draw() {
-	fillBackDefault();
+	fillBackDefault(canvas, gameModel.width, gameModel.height);
 	// canvas.strokeRect(0, 0, acanvasWidth, canvasHeight);
 	drawPlayer();
 	drawText();
@@ -174,19 +172,12 @@ function draw() {
 function drawPlayer() {
 	if (!plr.dead) {
 		canvas.drawImage(plr.sprite, plr.x, plr.y);
-		drawRect('#ff0000', plr.x, plr.y, 6)
+		drawRect(canvas, '#ff0000', plr.x, plr.y, 6)
 		canvas.beginPath();
     canvas.rect(plr.x, plr.y, plr.width, plr.height);
     canvas.strokeStyle = '#f9e003';
     canvas.stroke();
 	}
-}
-
-function drawRect(clr, posx, posy, size) {
-  canvas.beginPath();
-  canvas.rect(posx, posy, size, size);
-  canvas.fillStyle = clr;
-  canvas.fill();
 }
 
 function updateStars() {
@@ -201,11 +192,11 @@ function updateStars() {
 
 function drawStars() {
 	stars.forEach(function(s) {
-		drawRect(s.clr, s.x, s.y, s.size);
+		drawRect(canvas, s.clr, s.x, s.y, s.size);
 		if (s.trail) {
 			for (var i = 0; i < s.trail; i++) {
 				var op = (0.05 * i + 1);
-				drawRect('rgba(255, 0, 155, ' + op + ')', s.x, s.y - i * 3, s.size - (0.23 * i));
+				drawRect(canvas, 'rgba(255, 0, 155, ' + op + ')', s.x, s.y - i * 3, s.size - (0.23 * i));
 			}
 		}
 	});
@@ -233,24 +224,24 @@ function drawBullets() {
 	if (!plr.dead && plr.shooting && plr.canShoot && plr.bulletTimeout === 0) {
 			shotsFired++;
 			playSound(bulletSound);
-			plr.bullets.push({
+			plr.bullets.push(new Bullet({
 				x: plr.x + plr.width / 2,
 				y: plr.y,
 				width: 5,
 				height: 5,
 				dead: false
-			});
+			}));
 			plr.bulletTimeout = 4;
 	}
 	for (var i = 0; i < plr.bullets.length; i++) {
 			let bul = plr.bullets[i];
-			if (!bul.dead) drawRect('#f97f04', bul.x, bul.y, 10);
+			if (!bul.dead) drawRect(canvas, '#f97f04', bul.x, bul.y, 10);
 	}
 }
 
 function drawEnemies() {
 	enemies.forEach(function(e) {
-		if (!e.dead) drawRect('#00ff00', e.x, e.y, e.width);
+		if (!e.dead) drawRect(canvas, '#00ff00', e.x, e.y, e.width);
 	});
 }
 
@@ -260,23 +251,6 @@ function getRandomInt(min, max) {
 
 function getRand(min, max) {
 	return Math.random() * (max - min) + min;
-}
-
-function checkCollision(source, target) {
-	var sourceXLo = source.x;
-	var sourceXHi = sourceXLo + source.width;
-	var sourceYLo = source.y;
-	var sourceYHi = sourceYLo + source.height;
-
-	var targetXLo = target.x;
-	var targetXHi = targetXLo + target.width;
-	var targetYLo = target.y;
-	var targetYHi = targetYLo + target.height;
-
-	var xOverlap = (sourceXLo <= targetXHi) && (sourceXHi >= targetXLo);
-	var yOverlap = (sourceYLo <= targetYHi) && (sourceYHi >= targetYLo);
-
-	return xOverlap && yOverlap;
 }
 
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
