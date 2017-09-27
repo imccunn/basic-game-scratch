@@ -2,6 +2,7 @@
 import path from 'path';
 import { clamp } from './util';
 import Player from './model/Player';
+import Enemy from './model/Enemy';
 import gameModel from './model/GameModel';
 import initStars from './model/Stars';
 
@@ -72,14 +73,14 @@ var enemies = [];
 function initEnemies() {
 	enemies = [];
 	for (var i = 0; i < numEnemies; i++) {
-		enemies.push({
+		enemies.push(new Enemy({
 			x: getRandomInt(1, gameModel.width - 40),
 			y: -20,
 			speed: getRand(1, 3.5),
 			width: 40,
 			height: 40,
 			dead: false
-		});
+		}));
 	}
 }
 
@@ -107,18 +108,6 @@ function update() {
 }
 
 function updateEnemies() {
-	if (gameModel.time !== 0 && gameModel.time % 10 === 0) {
-		for (var i = 0; i < 1; i++) {
-			enemies.push({
-				x: getRandomInt(10, gameModel.width - 50),
-				y: -20,
-				speed: getRand(1, 3.5),
-				width: 40,
-				height: 40,
-				dead: false
-			});
-		}
-	}
 	enemies.forEach((e) => {
 		e.y += e.speed;
 	});
@@ -126,7 +115,7 @@ function updateEnemies() {
 		return e.y < gameModel.height;
 	});
 	enemies.forEach(function(e) {
-		if (!e.dead && checkCollision(e, plr)) {
+		if (!e.dead && e.checkCollision(plr)) {
 			playSound(enemyExplosion);
 			plr.dead = true;
 			plr.deathTimeout = 300;
@@ -200,8 +189,6 @@ function drawRect(clr, posx, posy, size) {
   canvas.fill();
 }
 
-
-
 function updateStars() {
 	stars.forEach(function(s) {
 		s.y += 0.4 * s.distance;
@@ -245,7 +232,7 @@ function drawBullets() {
 	if (plr.bulletTimeout !== 0) plr.bulletTimeout -= modifier;
 	if (!plr.dead && plr.shooting && plr.canShoot && plr.bulletTimeout === 0) {
 			shotsFired++;
-			playSound(bulletSound)
+			playSound(bulletSound);
 			plr.bullets.push({
 				x: plr.x + plr.width / 2,
 				y: plr.y,
