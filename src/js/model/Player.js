@@ -12,7 +12,9 @@ export default class Player extends Entity {
     this.dead = opts.dead || false;
     this.score = opts.score || 0;
     this.deathTimeout = opts.deathTimeout || 4;
+    this.canShoot = opts.canShoot
     this.gameModel = opts.gameModel;
+    this.bullets = opts.bullets;
   }
 
   setWeapon(weapon) {

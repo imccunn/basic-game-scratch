@@ -1,11 +1,11 @@
 
 export default class Entity {
-  constructor() {
-    this.x;
-    this.y;
-    this.width;
-    this.height;
-    this.speed;
+  constructor(opts) {
+    this.x = opts.x || 0;
+    this.y = opts.y || 0;
+    this.width = opts.width || 0;
+    this.height = opts.height || 0;
+    this.speed = opts.speed || 0;
   }
 
   collision(target) {
