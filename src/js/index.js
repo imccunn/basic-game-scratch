@@ -2,6 +2,7 @@
 import path from 'path';
 import { clamp } from './util';
 import Player from './model/Player';
+import Sprite from './view/Sprite';
 import Enemy from './model/Enemy';
 import Bullet from './model/Bullet';
 import gameModel from './model/GameModel';
@@ -281,7 +282,7 @@ function loadSound(path, cb) {
 var explosionImage = new Image();
 explosionImage.src = 'images/explosion_3.png';
 
-var explosionSprite = sprite({
+var explosionSprite = Sprite({
 	context: canvas,
 	width: 97,
 	height: 4365,
@@ -296,46 +297,6 @@ function doExplosionSprite() {
 	explosionSprite.render();
 }
 
-function sprite(opt) {
-	var sprite = {
-		context: opt.context,
-		width: opt.width,
-		height: opt.height,
-		image: opt.image,
-		numFrames: opt.numFrames,
-		x: opt.x,
-		y: opt.y
-	};
-	var frameIndex = 0;
-	var tickCount = 0;
-	var ticksPerFrame = 1;
-
-	sprite.render = function() {
-		sprite.context.clearRect(0, 0, sprite.width, sprite.height);
-		sprite.context.drawImage(
-			sprite.image, // image object
-			0, // sx
-			frameIndex * sprite.height / sprite.numFrames, // sy
-			sprite.width, //sw
-			sprite.height / sprite.numFrames , // sh
-			sprite.x, // dx
-			sprite.y, // dy
-			sprite.width, // dw
-			sprite.height / sprite.numFrames // dh
-		);
-	};
-	sprite.update = function() {
-		tickCount += 1;
-		if (frameIndex === 49) frameIndex = 0;
-		if (tickCount > ticksPerFrame) {
-			tickCount = 0;
-			if (frameIndex < sprite.numFrames - 1) {
-				frameIndex++;
-			}
-		}
-	}
-	return sprite;
-}
 var clickSound = null;
 loadSound('audio/test.mp3', function(buff) {
 	bulletSound = buff;
