@@ -48,7 +48,7 @@ $('body').bind('keyup', function(e) {
 	}
 });
 
-$('body').bind('keyup', function(e) {
+$('body').bind('keydown', function(e) {
 	if (e.which === 32) playerFired();
 });
 
@@ -204,7 +204,9 @@ function drawStars() {
 }
 
 function playerFired() {
-	plr.bulletTimeout = 4;
+  console.log('playerFired');
+	plr.bulletTimeout = 10;
+
 }
 
 var shotsFired = 0;
@@ -282,7 +284,7 @@ function loadSound(path, cb) {
 var explosionImage = new Image();
 explosionImage.src = 'images/explosion_3.png';
 
-var explosionSprite = Sprite({
+var explosionSprite = new Sprite({
 	context: canvas,
 	width: 97,
 	height: 4365,

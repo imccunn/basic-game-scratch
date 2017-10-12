@@ -1,6 +1,6 @@
 
 export default class Sprite {
-	constructor(opts) {
+	constructor(opt) {
 		this.context = opt.context;
 		this.width = opt.width;
 		this.height = opt.height;
