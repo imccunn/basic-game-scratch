@@ -1,12 +1,15 @@
 
 import path from 'path';
-import { clamp } from './util';
+import { clamp, getRand, getRandomInt } from './util';
 import Player from './model/Player';
 import Sprite from './view/Sprite';
 import Enemy from './model/Enemy';
 import Bullet from './model/Bullet';
 import gameModel from './model/GameModel';
 import initStars from './model/Stars';
+import { loadSound, playSound } from './Audio';
+import { c, ctx } from './view/CanvasContext';
+import Assets from './Assets';
 
 import {
   fillBackDefault,
@@ -22,6 +25,8 @@ const HEIGHT = gameModel.height;
 
 var bulletSound = null;
 var enemyExplosion = null;
+var clickSound = null;
+
 var score = 0;
 var highScore = 0;
 let FPS = 10;
@@ -52,9 +57,6 @@ $('body').bind('keydown', function(e) {
 	if (e.which === 32) playerFired();
 });
 
-var canvas = $('#c')[0].getContext('2d');
-$('#c').attr('width', WIDTH);
-$('#c').attr('height', HEIGHT);
 var statsCtx = $('#stats')[0].getContext('2d')
 $('#stats').attr('width', 200);
 $('#stats').attr('height', 200);
@@ -95,7 +97,7 @@ initEnemies();
 gameModel.enemies = enemies;
 gameModel.initEnemies = initEnemies;
 gameModel.update = function() {
-	gameModel.animator = window.requestAnimationFrame(gameModel.update)
+	gameModel.animator = window.requestAnimationFrame(gameModel.update);
 	update();
 	draw();
 }
@@ -128,9 +130,6 @@ function updateEnemies() {
 				if (b.collision(e)) {
 					if (!e.dead) {
 						playSound(enemyExplosion);
-						explosionSprite.x = e.x;
-						explosionSprite.y = e.y
-						explosionSprite.render();
 						b.dead = true;
 						e.dead = true;
 						score++;
@@ -142,10 +141,10 @@ function updateEnemies() {
 }
 
 function drawPausedText() {
-	canvas.font = '48px monospace';
-	canvas.textAlign = 'center';
-	canvas.fillStyle = '#ff0000';
-	canvas.fillText('Paused', gameModel.width / 2, gameModel.height / 2);
+	ctx.font = '48px monospace';
+	ctx.textAlign = 'center';
+	ctx.fillStyle = '#ff0000';
+	ctx.fillText('Paused', gameModel.width / 2, gameModel.height / 2);
 }
 
 function drawText() {
@@ -161,8 +160,7 @@ function drawText() {
 }
 
 function draw() {
-	fillBackDefault(canvas, gameModel.width, gameModel.height);
-	// canvas.strokeRect(0, 0, acanvasWidth, canvasHeight);
+	fillBackDefault(ctx, gameModel.width, gameModel.height);
 	drawPlayer();
 	drawText();
 	drawBullets();
@@ -172,12 +170,12 @@ function draw() {
 
 function drawPlayer() {
 	if (!plr.dead) {
-		canvas.drawImage(plr.sprite, plr.x, plr.y);
-		drawRect(canvas, '#ff0000', plr.x, plr.y, 6)
-		canvas.beginPath();
-    canvas.rect(plr.x, plr.y, plr.width, plr.height);
-    canvas.strokeStyle = '#f9e003';
-    canvas.stroke();
+		ctx.drawImage(plr.sprite, plr.x, plr.y);
+		drawRect(ctx, '#ff0000', plr.x, plr.y, 6);
+		ctx.beginPath();
+    ctx.rect(plr.x, plr.y, plr.width, plr.height);
+    ctx.strokeStyle = '#f9e003';
+    ctx.stroke();
 	}
 }
 
@@ -193,11 +191,11 @@ function updateStars() {
 
 function drawStars() {
 	stars.forEach(function(s) {
-		drawRect(canvas, s.clr, s.x, s.y, s.size);
+		drawRect(ctx, s.clr, s.x, s.y, s.size);
 		if (s.trail) {
 			for (var i = 0; i < s.trail; i++) {
 				var op = (0.05 * i + 1);
-				drawRect(canvas, 'rgba(255, 0, 155, ' + op + ')', s.x, s.y - i * 3, s.size - (0.23 * i));
+				drawRect(ctx, 'rgba(255, 0, 155, ' + op + ')', s.x, s.y - i * 3, s.size - (0.23 * i));
 			}
 		}
 	});
@@ -238,75 +236,21 @@ function drawBullets() {
 	}
 	for (var i = 0; i < plr.bullets.length; i++) {
 			let bul = plr.bullets[i];
-			if (!bul.dead) drawRect(canvas, '#f97f04', bul.x, bul.y, 10);
+			if (!bul.dead) drawRect(ctx, '#f97f04', bul.x, bul.y, 10);
 	}
 }
 
 function drawEnemies() {
 	enemies.forEach(function(e) {
-		if (!e.dead) drawRect(canvas, '#00ff00', e.x, e.y, e.width);
+		if (!e.dead) drawRect(ctx, '#00ff00', e.x, e.y, e.width);
 	});
 }
 
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min) + min);
-}
 
-function getRand(min, max) {
-	return Math.random() * (max - min) + min;
-}
-
-window.AudioContext = window.AudioContext || window.webkitAudioContext;
-var context = new AudioContext();
-function playSound(buffer) {
-  var source = context.createBufferSource();
-  source.buffer = buffer;
-  source.connect(context.destination);
-  source.start(0);
-}
-
-function loadSound(path, cb) {
-  let request = new XMLHttpRequest();
-  request.open('GET', path, true);
-  request.responseType = 'arraybuffer';
-  request.onload = function() {
-    context.decodeAudioData(request.response, function(buffer) {
-      if (buffer) {
-        cb(buffer)
-      }
-    }, function(error) {
-			console.log('error: ', error)
-		});
-  };
-  request.send();
-}
-
-var explosionImage = new Image();
-explosionImage.src = 'images/explosion_3.png';
-
-var explosionSprite = new Sprite({
-	context: canvas,
-	width: 97,
-	height: 4365,
-	image: explosionImage,
-	numFrames: 45,
-	x: 0,
-	y: 0
-});
-
-function doExplosionSprite() {
-	explosionSprite.update();
-	explosionSprite.render();
-}
-
-var clickSound = null;
-loadSound('audio/test.mp3', function(buff) {
-	bulletSound = buff;
-	loadSound('audio/test2.mp3', function(buff) {
-		enemyExplosion = buff;
-		loadSound('audio/click.mp3', function(buff) {
-			clickSound = buff;
-			gameModel.update();
-		});
-	});
-});
+Assets
+  .then(assets => {
+    bulletSound = assets[0];
+    enemyExplosion = assets[1];
+    clickSound = assets[2];
+    gameModel.update();
+  });
