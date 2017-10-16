@@ -11,12 +11,13 @@ export function loadSound(path) {
       context.decodeAudioData(request.response, function(buffer) {
         if (buffer) {
           resolve(buffer);
+        } else {
+          resolve();
         }
       }, reject);
     };
     request.send();
-  })
-
+  });
 }
 
 
