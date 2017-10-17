@@ -11,6 +11,7 @@ for (let i = 0; i < numStars; i++) {
 	let trail = distance > 0.9 ? getRandomInt(5, 11) : null;
 	let randClr = getRandomInt(1, 3);
 	let clr = null;
+
 	switch(randClr) {
 		case 1: clr = '#ffff00a';
 			break;
@@ -19,6 +20,7 @@ for (let i = 0; i < numStars; i++) {
 		case 3: clr = '#0000ff';
 			break;
 	}
+
 	stars.push({
 		x: getRandomInt(1, gameModel.width),
 		y: getRandomInt(1, gameModel.height),
@@ -33,6 +35,5 @@ for (let i = 0; i < numStars; i++) {
 function initStars() {
   return stars;
 }
-
 
 export default initStars;

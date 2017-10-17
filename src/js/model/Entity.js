@@ -24,8 +24,4 @@ export default class Entity {
 
     return xOverlap && yOverlap;
   }
-
-  update() {
-
-  }
 }
