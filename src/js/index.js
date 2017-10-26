@@ -34,11 +34,13 @@ let animator = null;
 
 var keysDown = {};
 
-$('body').bind('keydown', function(e) {
+let domBody = document.getElementsByTagName('body')[0];
+
+domBody.addEventListener('keydown', function(e) {
   keysDown[e.which] = true;
 });
 
-$('body').bind('keyup', function(e) {
+domBody.addEventListener('keyup', function(e) {
   keysDown[e.which] = false;
   if (e.which === 80) {
     gameModel.active = !gameModel.active;
@@ -53,13 +55,14 @@ $('body').bind('keyup', function(e) {
   }
 });
 
-$('body').bind('keydown', function(e) {
+domBody.addEventListener('keydown', function(e) {
   if (e.which === 32) playerFired();
-});
+})
 
-var statsCtx = $('#stats')[0].getContext('2d')
-$('#stats').attr('width', 200);
-$('#stats').attr('height', 200);
+var domStats = document.getElementById('stats');
+var statsCtx = domStats.getContext('2d')
+domStats.setAttribute('width', 200);
+domStats.setAttribute('height', 200);
 
 var playerImage = new Image();
 playerImage.src = 'images/medfighter.png';
