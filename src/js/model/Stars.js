@@ -13,7 +13,7 @@ for (let i = 0; i < numStars; i++) {
 	let clr = null;
 
 	switch(randClr) {
-		case 1: clr = '#ffff00a';
+		case 1: clr = '#ffff00';
 			break;
 		case 2: clr = '#aaaaff';
 			break;
