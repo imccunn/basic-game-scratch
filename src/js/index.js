@@ -5,6 +5,7 @@ import Player from './model/Player';
 import Sprite from './view/Sprite';
 import Enemy from './model/Enemy';
 import Bullet from './model/Bullet';
+import Weapon from './model/Weapon';
 import gameModel from './model/GameModel';
 import initStars from './model/Stars';
 import { loadSound, playSound } from './Audio';
@@ -38,6 +39,8 @@ let domBody = document.getElementsByTagName('body')[0];
 
 domBody.addEventListener('keydown', function(e) {
   keysDown[e.which] = true;
+  if(keysDown[32]) plr.shooting = true;
+
 });
 
 domBody.addEventListener('keyup', function(e) {
@@ -53,11 +56,11 @@ domBody.addEventListener('keyup', function(e) {
       window.cancelAnimationFrame(gameModel.animator);
     }
   }
-});
 
-domBody.addEventListener('keydown', function(e) {
-  if (e.which === 32) playerFired();
-})
+  if (e.which === 32) {
+    plr.shooting = false;
+  }
+});
 
 var domStats = document.getElementById('stats');
 var statsCtx = domStats.getContext('2d')
@@ -76,9 +79,14 @@ var plr = new Player({
   sprite: playerImage,
   bullets: [],
   speed: 10,
-  canShoot: true,
-  bulletTimeout: 15
+  canShoot: true
 });
+
+let weapon1 = new Weapon({
+  bulletTimeout: 6,
+  bulletSpeed: 3
+});
+plr.weapon = weapon1;
 
 var numEnemies = 10
 var enemies = [];
@@ -112,6 +120,9 @@ function update() {
 }
 
 function updateEnemies() {
+  if (enemies.length === 0) {
+    initEnemies();
+  }
   enemies.forEach((e) => {
     e.y += e.speed;
   });
@@ -204,12 +215,6 @@ function drawStars() {
   });
 }
 
-function playerFired() {
-  console.log('playerFired');
-  plr.bulletTimeout = 10;
-
-}
-
 var shotsFired = 0;
 var modifier = 1;
 function drawBullets() {
@@ -223,9 +228,8 @@ function drawBullets() {
     let bul = plr.bullets[i];
     bul.y -= bulletSpeed;
   }
-
-  if (plr.bulletTimeout !== 0) plr.bulletTimeout -= modifier;
-  if (!plr.dead && plr.shooting && plr.canShoot && plr.bulletTimeout === 0) {
+  if (plr.weapon.ticksUntilNextFire !== 0) plr.weapon.ticksUntilNextFire -= modifier;
+  if (!plr.dead && plr.shooting && plr.canShoot && plr.weapon.ticksUntilNextFire === 0) {
       shotsFired++;
       playSound(bulletSound);
       plr.bullets.push(new Bullet({
@@ -236,7 +240,7 @@ function drawBullets() {
         dead: false,
         color: '#f97f04'
       }));
-      plr.bulletTimeout = 4;
+      plr.weapon.ticksUntilNextFire = plr.weapon.getBulletTimeout();
   }
   for (var i = 0; i < plr.bullets.length; i++) {
       let bul = plr.bullets[i];
