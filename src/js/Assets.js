@@ -1,9 +1,9 @@
 import { loadSound } from './Audio';
 
 const assets = [
-  'audio/test.mp3',
-  'audio/test2.mp3',
-  'audio/click.mp3'
+  'audio/weapon-fire.mp3',
+  'audio/ship-explosion.mp3',
+  'audio/pause-game.mp3'
 ]
 
 let allAssets = assets.map(loadSound);

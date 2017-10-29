@@ -7,10 +7,11 @@ import Enemy from './model/Enemy';
 import Bullet from './model/Bullet';
 import Weapon from './model/Weapon';
 import gameModel from './model/GameModel';
+import AudioFactory from './Audio/AudioFactory';
+import GameEvents from './model/GameEvents';
 import initStars from './model/Stars';
 import { loadSound, playSound } from './Audio';
 import { c, ctx } from './view/CanvasContext';
-import Assets from './Assets';
 
 import {
   fillBackDefault,
@@ -49,9 +50,9 @@ domBody.addEventListener('keyup', function(e) {
     gameModel.active = !gameModel.active;
     if (gameModel.active === true) {
       gameModel.animator = window.requestAnimationFrame(gameModel.update);
-      playSound(clickSound);
+      gameModel.handleEvent(GameEvents.PAUSE);
     } else {
-      playSound(clickSound);
+      gameModel.handleEvent(GameEvents.PAUSE);
       drawPausedText();
       window.cancelAnimationFrame(gameModel.animator);
     }
@@ -78,10 +79,12 @@ var plr = new Player({
   score: score,
   sprite: playerImage,
   bullets: [],
-  speed: 10,
-  canShoot: true
+  speed: 10
 });
 
+gameModel.player = plr;
+gameModel.score = score;
+gameModel.highScore = highScore;
 let weapon1 = new Weapon({
   bulletTimeout: 6,
   bulletSpeed: 3
@@ -105,6 +108,9 @@ function initEnemies() {
 }
 
 initEnemies();
+
+const audioFactory = new AudioFactory();
+gameModel.audioFactory = audioFactory;
 gameModel.enemies = enemies;
 gameModel.initEnemies = initEnemies;
 gameModel.update = function() {
@@ -115,43 +121,8 @@ gameModel.update = function() {
 
 function update() {
   plr.update(keysDown);
-  updateEnemies();
+  gameModel.updateEnemies();
   updateStars();
-}
-
-function updateEnemies() {
-  if (enemies.length === 0) {
-    initEnemies();
-  }
-  enemies.forEach((e) => {
-    e.y += e.speed;
-  });
-  enemies = enemies.filter(function(e) {
-    return e.y < gameModel.height;
-  });
-  enemies.forEach(function(e) {
-    if (!e.dead && e.collision(plr)) {
-      playSound(enemyExplosion);
-      plr.dead = true;
-      plr.deathTimeout = 300;
-      if (score > highScore) highScore = score;
-      score = 0;
-      gameModel.time = 0;
-      clearInterval(gameModel.timer);
-    }
-    if (plr.bullets) {
-      plr.bullets.forEach(function(b) {
-        if (b.collision(e)) {
-          if (!e.dead) {
-            playSound(enemyExplosion);
-            b.dead = true;
-            e.dead = true;
-            score++;
-          }
-        }
-      });
-    }
-  });
 }
 
 function drawPausedText() {
@@ -169,7 +140,7 @@ function drawText() {
   statsCtx.font = '16px monospace';
   statsCtx.fillStyle = '#ff0000';
   statsCtx.fillText('score: ' + score, 20, 20);
-  statsCtx.fillText('high Score: ' + highScore, 20, 40);
+  statsCtx.fillText('high Score: ' + gameModel.highScore, 20, 40);
   statsCtx.fillText('time: ' + gameModel.time, 20, 60);
 }
 
@@ -229,9 +200,9 @@ function drawBullets() {
     bul.y -= bulletSpeed;
   }
   if (plr.weapon.ticksUntilNextFire !== 0) plr.weapon.ticksUntilNextFire -= modifier;
-  if (!plr.dead && plr.shooting && plr.canShoot && plr.weapon.ticksUntilNextFire === 0) {
+  if (!plr.dead && plr.shooting && plr.weapon.ticksUntilNextFire === 0) {
       shotsFired++;
-      playSound(bulletSound);
+      gameModel.handleEvent(GameEvents.WEAPON_FIRE)
       plr.bullets.push(new Bullet({
         x: plr.x + plr.width / 2,
         y: plr.y,
@@ -254,11 +225,7 @@ function drawEnemies() {
   });
 }
 
-
-Assets
+audioFactory.init()
   .then(assets => {
-    bulletSound = assets[0];
-    enemyExplosion = assets[1];
-    clickSound = assets[2];
     gameModel.update();
   });
