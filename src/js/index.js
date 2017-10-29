@@ -1,33 +1,25 @@
 
-import path from 'path';
 import { clamp, getRand, getRandomInt } from './util';
 import Player from './model/Player';
 import Sprite from './view/Sprite';
 import Enemy from './model/Enemy';
 import Bullet from './model/Bullet';
 import Weapon from './model/Weapon';
+
+import { c, ctx } from './view/CanvasContext';
 import gameModel from './model/GameModel';
 import AudioFactory from './Audio/AudioFactory';
 import GameEvents from './model/GameEvents';
 import initStars from './model/Stars';
 import { loadSound, playSound } from './Audio';
-import { c, ctx } from './view/CanvasContext';
+
 
 import {
   fillBackDefault,
   drawRect
 } from './view';
-
-console.log('Game starting...');
-
+console.log('GameModel: ', gameModel)
 var stars = initStars();
-
-const WIDTH = gameModel.width
-const HEIGHT = gameModel.height;
-
-var bulletSound = null;
-var enemyExplosion = null;
-var clickSound = null;
 
 var score = 0;
 var highScore = 0;
@@ -72,8 +64,8 @@ var playerImage = new Image();
 playerImage.src = 'images/medfighter.png';
 var plr = new Player({
   gameModel: gameModel,
-  x: (gameModel.width / 2),
-  y: (gameModel.height / 2),
+  x: (gameModel.viewport.width / 2),
+  y: (gameModel.viewport.height / 2),
   width: 85,
   height: 85,
   score: score,
@@ -107,7 +99,7 @@ function initEnemies() {
   }
 }
 
-initEnemies();
+// initEnemies();
 
 const audioFactory = new AudioFactory();
 gameModel.audioFactory = audioFactory;
@@ -145,7 +137,7 @@ function drawText() {
 }
 
 function draw() {
-  fillBackDefault(ctx, gameModel.width, gameModel.height);
+  fillBackDefault(ctx, gameModel.viewport.width, gameModel.viewport.height);
   drawPlayer();
   drawText();
   drawBullets();
@@ -174,13 +166,21 @@ function updateStars() {
   });
 }
 
+function toViewCoord(dist, x, y) {
+  return {
+    x: (x + (x - gameModel.viewport.worldX) * dist),
+    y: (y + (y - gameModel.viewport.worldY) * dist) * 0.5
+  };
+}
+
 function drawStars() {
   stars.forEach(function(s) {
-    drawRect(ctx, s.clr, s.x, s.y, s.size);
+    let viewCoord = toViewCoord(s.distance, s.x, s.y);
+    drawRect(ctx, s.clr, viewCoord.x, viewCoord.y, s.size);
     if (s.trail) {
       for (var i = 0; i < s.trail; i++) {
         var op = (0.05 * i + 1);
-        drawRect(ctx, 'rgba(255, 0, 155, ' + op + ')', s.x, s.y - i * 3, s.size - (0.23 * i));
+        drawRect(ctx, 'rgba(255, 0, 155, ' + op + ')', viewCoord.x, viewCoord.y - i * 3, s.size - (0.23 * i));
       }
     }
   });
@@ -202,7 +202,7 @@ function drawBullets() {
   if (plr.weapon.ticksUntilNextFire !== 0) plr.weapon.ticksUntilNextFire -= modifier;
   if (!plr.dead && plr.shooting && plr.weapon.ticksUntilNextFire === 0) {
       shotsFired++;
-      gameModel.handleEvent(GameEvents.WEAPON_FIRE)
+      gameModel.handleEvent(GameEvents.WEAPON_FIRE);
       plr.bullets.push(new Bullet({
         x: plr.x + plr.width / 2,
         y: plr.y,

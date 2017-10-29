@@ -2,14 +2,14 @@
 import { getRand, getRandomInt } from '../util';
 import gameModel from './GameModel';
 
-const numStars = 150;
+const numStars = 350;
 let stars = [];
 
 for (let i = 0; i < numStars; i++) {
 	let distance = Math.random();
 	let size = distance < 0.9 ? getRand(0.5, 2) : getRand(2, 4);
 	let trail = distance > 0.9 ? getRandomInt(5, 11) : null;
-	let randClr = getRandomInt(1, 3);
+	let randClr = getRandomInt(1, 4);
 	let clr = null;
 
 	switch(randClr) {
@@ -17,7 +17,9 @@ for (let i = 0; i < numStars; i++) {
 			break;
 		case 2: clr = '#aaaaff';
 			break;
-		case 3: clr = '#0000ff';
+		case 4: clr = '#0000ff';
+			break;
+		case 3: clr = '#ff0000';
 			break;
 	}
 

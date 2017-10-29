@@ -1,5 +1,6 @@
 
 function fillBackDefault(ctx, width, height) {
+
   ctx.beginPath();
   ctx.rect(0, 0, width, width);
   ctx.fillStyle = '#000';

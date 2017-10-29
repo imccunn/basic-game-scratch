@@ -1,18 +1,21 @@
 import EventEmitter from 'events';
 import * as Events from './GameEvents';
 import GameEvents from './GameEvents';
-const canvasWidth = 1100;
-const canvasHeight = window.innerHeight;
+import ViewPort from '../view/ViewPort';
+
+// const canvasWidth = 1100;
+// const canvasHeight = window.innerHeight;
 let animator = null;
 
 class GameModel {
   constructor() {
-    this.width = canvasWidth;
-    this.height = canvasHeight;
+    this.width = ViewPort.width + 200;
+    this.height = ViewPort.height + 400;
+    this.viewport = ViewPort;
     this.timer = null;
     this.time = null;
     this.active = true;
-    this.initEnemies = null
+    this.initEnemies = null;
     this.animator = animator;
     this.time = 0;
     this.timer = setInterval(() => {
@@ -75,15 +78,15 @@ class GameModel {
   }
 
   handleEvent(event) {
-    if (event === GameEvents.EXPLOSION) {
-      this.audioFactory.playShipExplosion();
-    }
-    if (event === GameEvents.WEAPON_FIRE) {
-      this.audioFactory.playWeaponFire();
-    }
-
-    if (event === GameEvents.PAUSE) {
-      this.audioFactory.playPauseGame();
+    switch (event) {
+      case GameEvents.EXPLOSION: this.audioFactory.playShipExplosion();
+        break;
+      case GameEvents.WEAPON_FIRE: this.audioFactory.playWeaponFire();
+        break;
+      case GameEvents.PAUSE: this.audioFactory.playPauseGame();
+        break;
+      default: throw new Error('Unknown game event passed to handleEvent.');
+        break;
     }
   }
 }

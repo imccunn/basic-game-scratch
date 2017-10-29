@@ -1,10 +1,9 @@
 
-const canvasWidth = 1100;
-const canvasHeight = window.innerHeight;
+import ViewPort from './ViewPort';
 
 const c = document.getElementById('c');
-c.setAttribute('width', canvasWidth);
-c.setAttribute('height', canvasHeight);
+c.setAttribute('width', ViewPort.width);
+c.setAttribute('height', ViewPort.height);
 
 const ctx = c.getContext('2d');
 

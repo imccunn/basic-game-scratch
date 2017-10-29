@@ -1,6 +1,7 @@
 
 import Entity from './Entity';
 import { clamp } from '../util';
+import ViewPort from '../view/ViewPort';
 
 export default class Player extends Entity {
   constructor(opts) {
@@ -18,6 +19,11 @@ export default class Player extends Entity {
 
   setWeapon(weapon) {
     this.weapon = weapon;
+  }
+
+  updateViewport() {
+    ViewPort.worldX = this.x * 0.2;
+    ViewPort.worldY = this.y * 0.2;
   }
 
   update(keysDown) {
@@ -40,8 +46,8 @@ export default class Player extends Entity {
       this.shooting = false;
     }
 
-    this.x = clamp(this.x, 0, this.gameModel.width - this.width);
-    this.y = clamp(this.y, 0, this.gameModel.height - this.height);
+    this.x = clamp(this.x, 0, this.gameModel.viewport.width - this.width);
+    this.y = clamp(this.y, 0, this.gameModel.viewport.height - this.height);
 
     if (this.dead) {
       this.score = 0;
@@ -61,5 +67,7 @@ export default class Player extends Entity {
         this.gameModel.initEnemies();
       }
     }
+
+    this.updateViewport();
   }
 }
