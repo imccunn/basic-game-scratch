@@ -32,8 +32,8 @@ let domBody = document.getElementsByTagName('body')[0];
 
 domBody.addEventListener('keydown', function(e) {
   keysDown[e.which] = true;
-  if(keysDown[32]) plr.shooting = true;
-
+  if (keysDown[32]) plr.shooting = true;
+  console.log('player shooting ')
 });
 
 domBody.addEventListener('keyup', function(e) {
