@@ -22,6 +22,8 @@ export default class Player extends Entity {
   }
 
   updateViewport() {
+    // ViewPort.worldX = (this.x / this.gameModel.width) * this.gameModel.viewport.width;
+    // ViewPort.worldY = (this.y / this.gameModel.height) * this.gameModel.viewport.height;
     ViewPort.worldX = this.x * 0.2;
     ViewPort.worldY = this.y * 0.2;
   }
@@ -46,8 +48,8 @@ export default class Player extends Entity {
       this.shooting = false;
     }
 
-    this.x = clamp(this.x, 0, this.gameModel.viewport.width - this.width);
-    this.y = clamp(this.y, 0, this.gameModel.viewport.height - this.height);
+    this.x = clamp(this.x, 0, this.gameModel.width - this.width);
+    this.y = clamp(this.y, 0, this.gameModel.height - this.height);
 
     if (this.dead) {
       this.score = 0;

@@ -23,7 +23,6 @@ export function loadSound(id) {
 
 
 export function playSound(buffer) {
-  console.log('playSound')
   var source = context.createBufferSource();
   source.buffer = buffer;
   source.connect(context.destination);

@@ -64,8 +64,8 @@ var playerImage = new Image();
 playerImage.src = 'images/medfighter.png';
 var plr = new Player({
   gameModel: gameModel,
-  x: (gameModel.viewport.width / 2),
-  y: (gameModel.viewport.height / 2),
+  x: (gameModel.width / 2),
+  y: (gameModel.height / 2),
   width: 85,
   height: 85,
   score: score,
@@ -145,12 +145,18 @@ function draw() {
   drawEnemies();
 }
 
+
 function drawPlayer() {
   if (!plr.dead) {
-    ctx.drawImage(plr.sprite, plr.x, plr.y);
-    // drawRect(ctx, '#ff0000', plr.x, plr.y, 6);
+    let viewCoord = {
+      x: (plr.x / gameModel.width) * gameModel.viewport.width,
+      x: (plr.x / gameModel.width) * gameModel.viewport.width
+    }
+    ctx.drawImage(plr.sprite, viewCoord.x, plr.y);
+    console.log('plr coords: ', viewCoord.x, plr.y)
+    drawRect(ctx, '#ff0000', viewCoord.x, plr.y, 6);
     ctx.beginPath();
-    // ctx.rect(plr.x, plr.y, plr.width, plr.height);
+    ctx.rect(viewCoord.x, plr.y, plr.width, plr.height);
     ctx.strokeStyle = '#f9e003';
     ctx.stroke();
   }
@@ -203,19 +209,25 @@ function drawBullets() {
   if (!plr.dead && plr.shooting && plr.weapon.ticksUntilNextFire === 0) {
       shotsFired++;
       gameModel.handleEvent(GameEvents.WEAPON_FIRE);
-      plr.bullets.push(new Bullet({
+        plr.bullets.push(new Bullet({
         x: plr.x + plr.width / 2,
         y: plr.y,
         width: 5,
         height: 5,
         dead: false,
-        color: '#f97f04'
+        color: '#ff0000'
       }));
       plr.weapon.ticksUntilNextFire = plr.weapon.getBulletTimeout();
   }
   for (var i = 0; i < plr.bullets.length; i++) {
       let bul = plr.bullets[i];
-      if (!bul.dead) drawRect(ctx, bul.color, bul.x, bul.y, 10);
+      let viewCoord = {
+        x: (bul.x / gameModel.width) * gameModel.viewport.width
+      }
+      if (!bul.dead) {
+        console.log('draw bull: ', bul)
+        drawRect(ctx, bul.color, viewCoord.x, bul.y, 8);
+      }
   }
 }
 
