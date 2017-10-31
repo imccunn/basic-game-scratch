@@ -71,7 +71,7 @@ var plr = new Player({
   score: score,
   sprite: playerImage,
   bullets: [],
-  speed: 10
+  speed: 8
 });
 
 gameModel.player = plr;
@@ -121,7 +121,7 @@ function drawPausedText() {
   ctx.font = '48px monospace';
   ctx.textAlign = 'center';
   ctx.fillStyle = '#ff0000';
-  ctx.fillText('Paused', gameModel.width / 2, gameModel.height / 2);
+  ctx.fillText('Paused', gameModel.viewport.width / 2, gameModel.viewport.height / 2);
 }
 
 function drawText() {
@@ -150,21 +150,17 @@ function drawPlayer() {
   if (!plr.dead) {
     let viewCoord = {
       x: (plr.x / gameModel.width) * gameModel.viewport.width,
-      x: (plr.x / gameModel.width) * gameModel.viewport.width
+      y: (plr.y / gameModel.height) * gameModel.viewport.height
     }
-    ctx.drawImage(plr.sprite, viewCoord.x, plr.y);
-    console.log('plr coords: ', viewCoord.x, plr.y)
-    drawRect(ctx, '#ff0000', viewCoord.x, plr.y, 6);
-    ctx.beginPath();
-    ctx.rect(viewCoord.x, plr.y, plr.width, plr.height);
-    ctx.strokeStyle = '#f9e003';
-    ctx.stroke();
+    let x = clamp(viewCoord.x, 0, gameModel.viewport.width - plr.width);
+    let y = clamp(viewCoord.y, 0, gameModel.viewport.height - plr.height);
+    ctx.drawImage(plr.sprite, x, viewCoord.y);
   }
 }
 
 function updateStars() {
   stars.forEach(function(s) {
-    s.y += 0.4 * s.distance;
+    s.y += s.speed;
     if (s.y > gameModel.height) {
       s.y = -10;
       s.x = getRandomInt(1, gameModel.width);
@@ -174,7 +170,7 @@ function updateStars() {
 
 function toViewCoord(dist, x, y) {
   return {
-    x: (x + (x - gameModel.viewport.worldX) * dist),
+    x: (x + ((x - gameModel.viewport.worldX)* 0.4) * dist),
     y: (y + (y - gameModel.viewport.worldY) * dist) * 0.5
   };
 }
@@ -182,11 +178,11 @@ function toViewCoord(dist, x, y) {
 function drawStars() {
   stars.forEach(function(s) {
     let viewCoord = toViewCoord(s.distance, s.x, s.y);
-    drawRect(ctx, s.clr, viewCoord.x, viewCoord.y, s.size);
+    drawRect(ctx, s.clr, viewCoord.x, s.y, s.size);
     if (s.trail) {
       for (var i = 0; i < s.trail; i++) {
         var op = (0.05 * i + 1);
-        drawRect(ctx, 'rgba(255, 0, 155, ' + op + ')', viewCoord.x, viewCoord.y - i * 3, s.size - (0.23 * i));
+        drawRect(ctx, 'rgba(255, 0, 155, ' + op + ')', viewCoord.x, s.y - i * 3, s.size - (0.23 * i));
       }
     }
   });
@@ -222,11 +218,11 @@ function drawBullets() {
   for (var i = 0; i < plr.bullets.length; i++) {
       let bul = plr.bullets[i];
       let viewCoord = {
-        x: (bul.x / gameModel.width) * gameModel.viewport.width
+        x: (bul.x / gameModel.width) * gameModel.viewport.width,
+        y: (bul.y / gameModel.height) * gameModel.viewport.height
       }
       if (!bul.dead) {
-        console.log('draw bull: ', bul)
-        drawRect(ctx, bul.color, viewCoord.x, bul.y, 8);
+        drawRect(ctx, bul.color, viewCoord.x, viewCoord.y, 8);
       }
   }
 }

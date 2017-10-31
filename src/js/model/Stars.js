@@ -6,9 +6,9 @@ const numStars = 350;
 let stars = [];
 
 for (let i = 0; i < numStars; i++) {
-	let distance = Math.random();
+	let distance = getRand(0.5, 1);
 	let size = distance < 0.9 ? getRand(0.5, 2) : getRand(2, 4);
-	let trail = distance > 0.9 ? getRandomInt(5, 11) : null;
+	let trail = distance > 0.99 ? getRandomInt(5, 11) : null;
 	let randClr = getRandomInt(1, 4);
 	let clr = null;
 
@@ -28,7 +28,7 @@ for (let i = 0; i < numStars; i++) {
 		y: getRandomInt(1, gameModel.height),
 		distance: distance,
 		size: size,
-		speed: 0.01 * -distance,
+		speed: (0.2 * distance),
 		trail: trail,
 		clr: clr
 	});
