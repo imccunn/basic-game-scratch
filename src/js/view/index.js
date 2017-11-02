@@ -14,7 +14,15 @@ function drawRect(ctx, clr, posx, posy, size) {
   ctx.fill();
 }
 
+function drawCircle(ctx, x, y, radius, clr) {
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, 2 * Math.PI, false);
+  ctx.fillStyle = clr;
+  ctx.fill();
+}
+
 export {
   fillBackDefault,
-  drawRect
+  drawRect,
+  drawCircle
 }

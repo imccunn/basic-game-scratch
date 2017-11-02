@@ -22,9 +22,12 @@ export function loadSound(id) {
 }
 
 
-export function playSound(buffer) {
+export function playSound(buffer, gainValue) {
   var source = context.createBufferSource();
   source.buffer = buffer;
-  source.connect(context.destination);
+  var gain = context.createGain();
+  gain.gain.value = gainValue;
+  source.connect(gain);
+  gain.connect(context.destination);
   source.start(0);
 }

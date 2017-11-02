@@ -16,7 +16,8 @@ import { loadSound, playSound } from './Audio';
 
 import {
   fillBackDefault,
-  drawRect
+  drawRect,
+  drawCircle
 } from './view';
 console.log('GameModel: ', gameModel)
 var stars = initStars();
@@ -145,7 +146,6 @@ function draw() {
   drawEnemies();
 }
 
-
 function drawPlayer() {
   if (!plr.dead) {
     let viewCoord = {
@@ -155,6 +155,7 @@ function drawPlayer() {
     let x = clamp(viewCoord.x, 0, gameModel.viewport.width - plr.width);
     let y = clamp(viewCoord.y, 0, gameModel.viewport.height - plr.height);
     ctx.drawImage(plr.sprite, x, viewCoord.y);
+    drawCircle(ctx, viewCoord.x + plr.width / 2, viewCoord.y + plr.height / 2, 6, `#7a0cf7`);
   }
 }
 
@@ -178,7 +179,7 @@ function toViewCoord(dist, x, y) {
 function drawStars() {
   stars.forEach(function(s) {
     let viewCoord = toViewCoord(s.distance, s.x, s.y);
-    drawRect(ctx, s.clr, viewCoord.x, s.y, s.size);
+    drawCircle(ctx, viewCoord.x, s.y, s.size, s.clr);
     if (s.trail) {
       for (var i = 0; i < s.trail; i++) {
         var op = (0.05 * i + 1);

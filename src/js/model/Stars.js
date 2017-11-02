@@ -7,7 +7,7 @@ let stars = [];
 
 for (let i = 0; i < numStars; i++) {
 	let distance = getRand(0.5, 1);
-	let size = distance < 0.9 ? getRand(0.5, 2) : getRand(2, 4);
+	let size = distance < 0.9 ? getRand(0.2, 0.9) : getRand(1, 1.5);
 	let trail = distance > 0.99 ? getRandomInt(5, 11) : null;
 	let randClr = getRandomInt(1, 4);
 	let clr = null;

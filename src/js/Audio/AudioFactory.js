@@ -19,14 +19,14 @@ export default class AudioFactory {
   }
 
   playWeaponFire() {
-    playSound(this.weaponFires);
+    playSound(this.weaponFires, 0.5);
   }
 
   playShipExplosion() {
-    playSound(this.shipExplodes);
+    playSound(this.shipExplodes, 1);
   }
 
   playPauseGame() {
-    playSound(this.pauseGame);
+    playSound(this.pauseGame, 1);
   }
 }
