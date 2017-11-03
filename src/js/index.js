@@ -84,7 +84,7 @@ let weapon1 = new Weapon({
 });
 plr.weapon = weapon1;
 
-var numEnemies = 10
+var numEnemies = 2
 var enemies = [];
 function initEnemies() {
   enemies = [];
@@ -95,12 +95,13 @@ function initEnemies() {
       speed: getRand(1, 3.5),
       width: 40,
       height: 40,
-      dead: false
+      dead: false,
+      weapon: new Weapon({})
     }));
   }
 }
 
-// initEnemies();
+initEnemies();
 
 const audioFactory = new AudioFactory();
 gameModel.audioFactory = audioFactory;
@@ -155,7 +156,7 @@ function drawPlayer() {
     let x = clamp(viewCoord.x, 0, gameModel.viewport.width - plr.width);
     let y = clamp(viewCoord.y, 0, gameModel.viewport.height - plr.height);
     ctx.drawImage(plr.sprite, x, viewCoord.y);
-    drawCircle(ctx, viewCoord.x + plr.width / 2, viewCoord.y + plr.height / 2, 6, `#7a0cf7`);
+    drawCircle(ctx, viewCoord.x + plr.width / 2, viewCoord.y + plr.height / 2, 2, `#05e7fc`);
   }
 }
 
@@ -230,7 +231,18 @@ function drawBullets() {
 
 function drawEnemies() {
   enemies.forEach(function(e) {
-    if (!e.dead) drawRect(ctx, '#00ff00', e.x, e.y, e.width);
+    let viewCoord = {
+      x: (e.x / gameModel.width) * gameModel.viewport.width,
+      y: (e.y / gameModel.height) * gameModel.viewport.height
+    }
+    if (!e.dead) drawRect(ctx, '#00ff00', viewCoord.x, viewCoord.y, e.width);
+    e.weapon.bullets.forEach((b) => {
+      let viewCoord = {
+        x: (b.x / gameModel.width) * gameModel.viewport.width,
+        y: (b.y / gameModel.height) * gameModel.viewport.height
+      }
+      drawRect(ctx, '#0000ff', viewCoord.x, viewCoord.y, b.width);
+    });
   });
 }
 

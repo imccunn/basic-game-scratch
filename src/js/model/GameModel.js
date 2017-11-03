@@ -43,16 +43,23 @@ class GameModel {
   }
 
   updateEnemies()  {
-    if (this.enemies.length === 0) {
-      // initEnemies();
-    }
+    // if (this.enemies.length === 0) {
+    //   initEnemies();
+    // }
     this.enemies.forEach((e) => {
       e.y += e.speed;
+      e.weapon.bullets.forEach((b) => {
+        b.x += b.xSpeed;
+        b.y += b.ySpeed;
+      })
     });
     this.enemies = this.enemies.filter((e) => {
       return e.y < this.height;
     });
     this.enemies.forEach((e) => {
+      if (e.canFire()) {
+        e.fire({x: this.player.x, y: this.player.y});
+      }
       if (!e.dead && e.collision(this.player)) {
         this.handleEvent(GameEvents.EXPLOSION);
         this.player.dead = true;
