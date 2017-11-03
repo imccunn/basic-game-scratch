@@ -156,7 +156,7 @@ function drawPlayer() {
     let x = clamp(viewCoord.x, 0, gameModel.viewport.width - plr.width);
     let y = clamp(viewCoord.y, 0, gameModel.viewport.height - plr.height);
     ctx.drawImage(plr.sprite, x, viewCoord.y);
-    drawCircle(ctx, viewCoord.x + plr.width / 2, viewCoord.y + plr.height / 2, 2, `#05e7fc`);
+    drawCircle(ctx, viewCoord.x + plr.width / 2, viewCoord.y + plr.height / 2, 10, `#05e7fc`);
   }
 }
 
@@ -234,13 +234,13 @@ function drawEnemies() {
     let viewCoord = {
       x: (e.x / gameModel.width) * gameModel.viewport.width,
       y: (e.y / gameModel.height) * gameModel.viewport.height
-    }
+    };
     if (!e.dead) drawRect(ctx, '#00ff00', viewCoord.x, viewCoord.y, e.width);
     e.weapon.bullets.forEach((b) => {
       let viewCoord = {
         x: (b.x / gameModel.width) * gameModel.viewport.width,
         y: (b.y / gameModel.height) * gameModel.viewport.height
-      }
+      };
       drawRect(ctx, '#0000ff', viewCoord.x, viewCoord.y, b.width);
     });
   });

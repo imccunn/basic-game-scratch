@@ -22,8 +22,8 @@ export default class Enemy extends Entity {
       ySpeed: ''
     });
     let angle = Math.atan2(opts.y - bullet.y, opts.x - bullet.x);
-    bullet.xSpeed = Math.sin(angle) * bullet.speed;
-    bullet.ySpeed = Math.cos(angle) * bullet.speed;
+    bullet.ySpeed = Math.sin(angle) * bullet.speed;
+    bullet.xSpeed = Math.cos(angle) * bullet.speed;
     this.weapon.bullets.push(bullet);
   }
 
