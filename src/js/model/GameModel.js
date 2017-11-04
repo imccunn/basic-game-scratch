@@ -2,6 +2,10 @@ import EventEmitter from 'events';
 import * as Events from './GameEvents';
 import GameEvents from './GameEvents';
 import ViewPort from '../view/ViewPort';
+import Enemy from './Enemy';
+import Weapon from './Weapon';
+
+import { getRandomInt, getRand } from '../util';
 
 // const canvasWidth = 1100;
 // const canvasHeight = window.innerHeight;
@@ -15,7 +19,6 @@ class GameModel {
     this.timer = null;
     this.time = null;
     this.active = true;
-    this.initEnemies = null;
     this.animator = animator;
     this.time = 0;
     this.timer = setInterval(() => {
@@ -24,6 +27,7 @@ class GameModel {
       }
     }, 1000);
 
+    this.numEnemies = 5;
     this.enemies;
     this.player;
 
@@ -42,10 +46,25 @@ class GameModel {
     this.player.update();
   }
 
+  initEnemies() {
+    this.enemies = [];
+    for (var i = 0; i < this.numEnemies; i++) {
+      this.enemies.push(new Enemy({
+        x: getRandomInt(1, this.width - 40),
+        y: -20,
+        speed: getRand(1, 3.5),
+        width: 40,
+        height: 40,
+        dead: false,
+        weapon: new Weapon({})
+      }));
+    }
+  }
+
   updateEnemies()  {
-    // if (this.enemies.length === 0) {
-    //   initEnemies();
-    // }
+    if (this.enemies.length === 0) {
+      this.initEnemies();
+    }
     this.enemies.forEach((e) => {
       e.y += e.speed;
       e.weapon.bullets.forEach((b) => {
@@ -58,7 +77,7 @@ class GameModel {
     });
     this.enemies.forEach((e) => {
       if (e.canFire()) {
-        e.fire({x: this.player.x, y: this.player.y});
+        e.fire({x: this.player.x - (this.player.width/2), y: this.player.y - (this.player.height/2)});
       }
       if (!e.dead && e.collision(this.player)) {
         this.handleEvent(GameEvents.EXPLOSION);

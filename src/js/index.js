@@ -19,7 +19,6 @@ import {
   drawRect,
   drawCircle
 } from './view';
-console.log('GameModel: ', gameModel)
 var stars = initStars();
 
 var score = 0;
@@ -34,7 +33,6 @@ let domBody = document.getElementsByTagName('body')[0];
 domBody.addEventListener('keydown', function(e) {
   keysDown[e.which] = true;
   if (keysDown[32]) plr.shooting = true;
-  console.log('player shooting ')
 });
 
 domBody.addEventListener('keyup', function(e) {
@@ -85,28 +83,10 @@ let weapon1 = new Weapon({
 plr.weapon = weapon1;
 
 var numEnemies = 2
-var enemies = [];
-function initEnemies() {
-  enemies = [];
-  for (var i = 0; i < numEnemies; i++) {
-    enemies.push(new Enemy({
-      x: getRandomInt(1, gameModel.width - 40),
-      y: -20,
-      speed: getRand(1, 3.5),
-      width: 40,
-      height: 40,
-      dead: false,
-      weapon: new Weapon({})
-    }));
-  }
-}
-
-initEnemies();
 
 const audioFactory = new AudioFactory();
 gameModel.audioFactory = audioFactory;
-gameModel.enemies = enemies;
-gameModel.initEnemies = initEnemies;
+gameModel.initEnemies();
 gameModel.update = function() {
   gameModel.animator = window.requestAnimationFrame(gameModel.update);
   update();
@@ -149,14 +129,21 @@ function draw() {
 
 function drawPlayer() {
   if (!plr.dead) {
+    // let viewCoord = {
+    //   x: (plr.x / gameModel.width) * gameModel.viewport.width,
+    //   y: (plr.y / gameModel.height) * gameModel.viewport.height
+    // }
+    //
     let viewCoord = {
-      x: (plr.x / gameModel.width) * gameModel.viewport.width,
-      y: (plr.y / gameModel.height) * gameModel.viewport.height
-    }
+      x: (plr.x - gameModel.viewport.worldX),
+      y: (plr.y - gameModel.viewport.worldY)
+    };
     let x = clamp(viewCoord.x, 0, gameModel.viewport.width - plr.width);
     let y = clamp(viewCoord.y, 0, gameModel.viewport.height - plr.height);
     ctx.drawImage(plr.sprite, x, viewCoord.y);
+    drawCircle(ctx, viewCoord.x + plr.width / 2, viewCoord.y + plr.height / 2, 14, `#f900a6`);
     drawCircle(ctx, viewCoord.x + plr.width / 2, viewCoord.y + plr.height / 2, 10, `#05e7fc`);
+    drawCircle(ctx, viewCoord.x + plr.width / 2, viewCoord.y + plr.height / 2, 5, `#f900a6`);
   }
 }
 
@@ -172,15 +159,15 @@ function updateStars() {
 
 function toViewCoord(dist, x, y) {
   return {
-    x: (x + ((x - gameModel.viewport.worldX)* 0.4) * dist),
-    y: (y + (y - gameModel.viewport.worldY) * dist) * 0.5
+    x: (x - gameModel.viewport.worldX),
+    y: (y - gameModel.viewport.worldY)
   };
 }
 
 function drawStars() {
   stars.forEach(function(s) {
     let viewCoord = toViewCoord(s.distance, s.x, s.y);
-    drawCircle(ctx, viewCoord.x, s.y, s.size, s.clr);
+    drawCircle(ctx, viewCoord.x, viewCoord.y, s.size, s.clr);
     if (s.trail) {
       for (var i = 0; i < s.trail; i++) {
         var op = (0.05 * i + 1);
@@ -220,8 +207,8 @@ function drawBullets() {
   for (var i = 0; i < plr.bullets.length; i++) {
       let bul = plr.bullets[i];
       let viewCoord = {
-        x: (bul.x / gameModel.width) * gameModel.viewport.width,
-        y: (bul.y / gameModel.height) * gameModel.viewport.height
+        x: (bul.x - gameModel.viewport.worldX),
+        y: (bul.y - gameModel.viewport.worldY)
       }
       if (!bul.dead) {
         drawRect(ctx, bul.color, viewCoord.x, viewCoord.y, 8);
@@ -230,18 +217,18 @@ function drawBullets() {
 }
 
 function drawEnemies() {
-  enemies.forEach(function(e) {
+  gameModel.enemies.forEach(function(e) {
     let viewCoord = {
-      x: (e.x / gameModel.width) * gameModel.viewport.width,
-      y: (e.y / gameModel.height) * gameModel.viewport.height
+      x: e.x - gameModel.viewport.worldX,
+      y: e.y - gameModel.viewport.worldY
     };
     if (!e.dead) drawRect(ctx, '#00ff00', viewCoord.x, viewCoord.y, e.width);
     e.weapon.bullets.forEach((b) => {
       let viewCoord = {
-        x: (b.x / gameModel.width) * gameModel.viewport.width,
-        y: (b.y / gameModel.height) * gameModel.viewport.height
+        x: b.x - gameModel.viewport.worldX,
+        y: b.y - gameModel.viewport.worldY
       };
-      drawRect(ctx, '#0000ff', viewCoord.x, viewCoord.y, b.width);
+      drawRect(ctx, '#0000ff', viewCoord.x, viewCoord.y, 11);
     });
   });
 }

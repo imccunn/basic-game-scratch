@@ -22,7 +22,6 @@ export default class Weapon {
   }
 
   fire() {
-    console.log('enemy weapon fire.');
     this.ammo--;
     this._canFire = false;
     setTimeout(() => {

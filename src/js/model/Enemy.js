@@ -12,7 +12,7 @@ export default class Enemy extends Entity {
     this.weapon.fire();
     let bullet = new Bullet({
       x: this.x + this.width / 2,
-      y: this.y,
+      y: this.y + this.width,
       speed: 2,
       width: 5,
       height: 5,

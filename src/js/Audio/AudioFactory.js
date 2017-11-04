@@ -9,7 +9,6 @@ export default class AudioFactory {
   }
 
   init() {
-    console.log('init audio')
     return loadSound('weapon-fire')
       .then(buffer => this.weaponFires = buffer)
       .then(loadSound.bind(null, 'ship-explosion'))
