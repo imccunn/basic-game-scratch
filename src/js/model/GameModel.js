@@ -4,6 +4,7 @@ import GameEvents from './GameEvents';
 import ViewPort from '../view/ViewPort';
 import Enemy from './Enemy';
 import Weapon from './Weapon';
+import AudioFactory from '../Audio/AudioFactory';
 
 import { getRandomInt, getRand } from '../util';
 
@@ -20,6 +21,7 @@ class GameModel {
     this.time = null;
     this.active = true;
     this.animator = animator;
+    this.audioFactory = new AudioFactory();
     this.time = 0;
     this.timer = setInterval(() => {
       if (this.active) {
@@ -77,17 +79,16 @@ class GameModel {
     });
     this.enemies.forEach((e) => {
       if (e.canFire()) {
-        e.fire({x: this.player.x - (this.player.width/2), y: this.player.y - (this.player.height/2)});
+        e.fire({x: this.player.x + (this.player.width/2), y: this.player.y + (this.player.height/2)});
       }
       if (!e.dead && e.collision(this.player)) {
-        this.handleEvent(GameEvents.EXPLOSION);
-        this.player.dead = true;
-        this.player.deathTimeout = 300;
-        if (this.player.score > this.highScore) this.highScore = this.player.score;
-        this.player.score = 0;
-        this.time = 0;
-        clearInterval(this.timer);
+        this.handlePlayerDeath();
       }
+      e.weapon.bullets.forEach((b) => {
+        if (b.collision(this.player)) {
+          this.handlePlayerDeath();
+        }
+      });
       if (this.player.bullets) {
         this.player.bullets.forEach((b) => {
           if (b.collision(e)) {
@@ -101,6 +102,16 @@ class GameModel {
         });
       }
     });
+  }
+
+  handlePlayerDeath() {
+    this.handleEvent(GameEvents.EXPLOSION);
+    this.player.dead = true;
+    this.player.deathTimeout = 300;
+    if (this.player.score > this.highScore) this.highScore = this.player.score;
+    this.player.score = 0;
+    this.time = 0;
+    clearInterval(this.timer);
   }
 
   handleEvent(event) {

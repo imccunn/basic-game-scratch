@@ -233,7 +233,7 @@ function drawEnemies() {
   });
 }
 
-audioFactory.init()
+gameModel.audioFactory.init()
   .then(assets => {
     gameModel.update();
   });
