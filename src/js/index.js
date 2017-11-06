@@ -1,4 +1,3 @@
-
 import { clamp, getRand, getRandomInt } from './util';
 import Player from './model/Player';
 import Sprite from './view/Sprite';
@@ -13,12 +12,12 @@ import GameEvents from './model/GameEvents';
 import initStars from './model/Stars';
 import { loadSound, playSound } from './Audio';
 
-
 import {
   fillBackDefault,
   drawRect,
   drawCircle
 } from './view';
+
 var stars = initStars();
 
 var score = 0;
@@ -96,6 +95,7 @@ gameModel.update = function() {
 function update() {
   plr.update(keysDown);
   gameModel.updateEnemies();
+  gameModel.updateActiveBullets();
   updateStars();
 }
 
@@ -113,7 +113,7 @@ function drawText() {
   statsCtx.fill();
   statsCtx.font = '16px monospace';
   statsCtx.fillStyle = '#ff0000';
-  statsCtx.fillText('score: ' + score, 20, 20);
+  statsCtx.fillText('score: ' + gameModel.player.score, 20, 20);
   statsCtx.fillText('high Score: ' + gameModel.highScore, 20, 40);
   statsCtx.fillText('time: ' + gameModel.time, 20, 60);
 }
@@ -125,25 +125,40 @@ function draw() {
   drawBullets();
   drawStars();
   drawEnemies();
+  drawActiveBullets();
 }
 
 function drawPlayer() {
+
+  let viewCoord = {
+    x: (plr.x - gameModel.viewport.worldX),
+    y: (plr.y - gameModel.viewport.worldY)
+  };
+  let x = clamp(viewCoord.x, 0, gameModel.viewport.width - plr.width);
+  let y = clamp(viewCoord.y, 0, gameModel.viewport.height - plr.height);
+
   if (!plr.dead) {
-    // let viewCoord = {
-    //   x: (plr.x / gameModel.width) * gameModel.viewport.width,
-    //   y: (plr.y / gameModel.height) * gameModel.viewport.height
-    // }
-    //
-    let viewCoord = {
-      x: (plr.x - gameModel.viewport.worldX),
-      y: (plr.y - gameModel.viewport.worldY)
-    };
-    let x = clamp(viewCoord.x, 0, gameModel.viewport.width - plr.width);
-    let y = clamp(viewCoord.y, 0, gameModel.viewport.height - plr.height);
     ctx.drawImage(plr.sprite, x, viewCoord.y);
-    drawCircle(ctx, viewCoord.x + plr.width / 2, viewCoord.y + plr.height / 2, 14, `#f900a6`);
-    drawCircle(ctx, viewCoord.x + plr.width / 2, viewCoord.y + plr.height / 2, 10, `#05e7fc`);
-    drawCircle(ctx, viewCoord.x + plr.width / 2, viewCoord.y + plr.height / 2, 5, `#f900a6`);
+    viewCoord = {
+      x: plr.hitbox.x - gameModel.viewport.worldX,
+      y: plr.hitbox.y - gameModel.viewport.worldY
+    };
+    ctx.beginPath();
+    ctx.rect(viewCoord.x, viewCoord.y, plr.hitbox.width, plr.hitbox.height);
+    ctx.fillStyle = '#ff0000';
+    ctx.fill();
+    // drawCircle(ctx, viewCoord.x + plr.width / 2 - plr.hitbox.width, viewCoord.y + plr.height / 2 + plr.hitbox.width, 14, `#f900a6`);
+    // drawCircle(ctx, viewCoord.x + plr.width / 2, viewCoord.y + plr.height / 2, 10, `#05e7fc`);
+    // drawCircle(ctx, viewCoord.x + plr.width / 2, viewCoord.y + plr.height / 2, 5, `#f900a6`);
+  } else {
+    viewCoord = {
+      x: plr.hitbox.x - gameModel.viewport.worldX,
+      y: plr.hitbox.y - gameModel.viewport.worldY
+    };
+    ctx.beginPath();
+    ctx.rect(viewCoord.x, viewCoord.y, plr.hitbox.width, plr.hitbox.height);
+    ctx.fillStyle = '#ff0000';
+    ctx.fill();
   }
 }
 
@@ -214,6 +229,16 @@ function drawBullets() {
         drawRect(ctx, bul.color, viewCoord.x, viewCoord.y, 8);
       }
   }
+}
+
+function drawActiveBullets() {
+  gameModel.activeBullets.forEach((b) => {
+    let viewCoord = {
+      x: b.x - gameModel.viewport.worldX,
+      y: b.y - gameModel.viewport.worldY
+    };
+    drawRect(ctx, '#0000ff', viewCoord.x, viewCoord.y, 11);
+  });
 }
 
 function drawEnemies() {

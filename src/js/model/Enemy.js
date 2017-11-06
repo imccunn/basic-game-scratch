@@ -10,21 +10,15 @@ export default class Enemy extends Entity {
 
   fire(opts) {
     this.weapon.fire();
-    let bullet = new Bullet({
-      x: this.x + this.width / 2,
-      y: this.y + this.width,
-      speed: 2,
-      width: 5,
-      height: 5,
-      dead: false,
-      color: '#00ff00',
-      xSpeed: '',
-      ySpeed: ''
-    });
-    let angle = Math.atan2(opts.y - bullet.y, opts.x - bullet.x);
-    bullet.ySpeed = Math.sin(angle) * bullet.speed;
-    bullet.xSpeed = Math.cos(angle) * bullet.speed;
-    this.weapon.bullets.push(bullet);
+    let freeBullet = this.weapon.bullets.pop();
+    freeBullet.x = this.x + this.width / 2;
+    freeBullet.y = this.y + this.width;
+    freeBullet.speed = 2;
+    freeBullet.width = 5;
+    let angle = Math.atan2(opts.y - freeBullet.y, opts.x - freeBullet.x);
+    freeBullet.ySpeed = Math.sin(angle) * freeBullet.speed;
+    freeBullet.xSpeed = Math.cos(angle) * freeBullet.speed;
+    return freeBullet;
   }
 
   canFire() {

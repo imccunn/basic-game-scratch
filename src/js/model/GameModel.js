@@ -8,8 +8,6 @@ import AudioFactory from '../Audio/AudioFactory';
 
 import { getRandomInt, getRand } from '../util';
 
-// const canvasWidth = 1100;
-// const canvasHeight = window.innerHeight;
 let animator = null;
 
 class GameModel {
@@ -29,8 +27,9 @@ class GameModel {
       }
     }, 1000);
 
-    this.numEnemies = 5;
+    this.numEnemies = 10;
     this.enemies;
+    this.activeBullets = [];
     this.player;
 
     this.events = new EventEmitter();
@@ -38,6 +37,7 @@ class GameModel {
 
   update() {
     this.updateEnemies();
+    this.updateActiveBullets();
   }
 
   draw() {
@@ -51,14 +51,15 @@ class GameModel {
   initEnemies() {
     this.enemies = [];
     for (var i = 0; i < this.numEnemies; i++) {
+      let x = getRandomInt(1, this.width - 40);
       this.enemies.push(new Enemy({
-        x: getRandomInt(1, this.width - 40),
+        x: x,
         y: -20,
         speed: getRand(1, 3.5),
         width: 40,
         height: 40,
         dead: false,
-        weapon: new Weapon({})
+        weapon: new Weapon({x: x, y: -20})
       }));
     }
   }
@@ -69,23 +70,25 @@ class GameModel {
     }
     this.enemies.forEach((e) => {
       e.y += e.speed;
-      e.weapon.bullets.forEach((b) => {
-        b.x += b.xSpeed;
-        b.y += b.ySpeed;
-      })
+
     });
     this.enemies = this.enemies.filter((e) => {
       return e.y < this.height;
     });
-    this.enemies.forEach((e) => {
-      if (e.canFire()) {
-        e.fire({x: this.player.x + (this.player.width/2), y: this.player.y + (this.player.height/2)});
-      }
-      if (!e.dead && e.collision(this.player)) {
+    this.activeBullets.forEach((b) => {
+      if (b.collision(this.player.hitbox) && this.player.dead === false) {
+        b.dead = true;
         this.handlePlayerDeath();
       }
+    })
+    this.enemies.forEach((e) => {
+      if (e.canFire() && !e.dead) {
+        this.activeBullets.push(e.fire({x: this.player.x + (this.player.width / 2), y: this.player.y + (this.player.height / 2)}));
+      }
+
       e.weapon.bullets.forEach((b) => {
-        if (b.collision(this.player)) {
+        if (b.collision(this.player.hitbox) && this.player.dead === false) {
+          b.dead = true;
           this.handlePlayerDeath();
         }
       });
@@ -100,6 +103,21 @@ class GameModel {
             }
           }
         });
+      }
+    });
+  }
+
+  updateActiveBullets() {
+    this.activeBullets = this.activeBullets.filter((b) => {
+      return !(b.x < 0 || b.x > this.width || b.y > this.height || b.y < 0 || b.dead);
+    });
+    this.activeBullets.forEach((b) => {
+      if (b.dead) {
+        b.x = b.x;
+        b.y = b.y;
+      } else {
+        b.x += b.xSpeed;
+        b.y += b.ySpeed;
       }
     });
   }

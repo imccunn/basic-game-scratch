@@ -15,6 +15,13 @@ export default class Player extends Entity {
     this.deathTimeout = opts.deathTimeout || 4;
     this.gameModel = opts.gameModel;
     this.bullets = opts.bullets;
+    this.hitbox = new Entity({
+      x: this.x + this.width/2,
+      y: this.y + this.height/2,
+      width: 15,
+      height: 15,
+      speed: this.speed
+    });
   }
 
   setWeapon(weapon) {
@@ -50,11 +57,11 @@ export default class Player extends Entity {
 
     this.x = clamp(this.x, 0, this.gameModel.width - this.width);
     this.y = clamp(this.y, 0, this.gameModel.height - this.height);
+    this.hitbox.x = this.x + this.width/2  - (this.hitbox.width / 2);
+    this.hitbox.y = this.y + this.height/2 - (this.hitbox.height / 2);
 
     if (this.dead) {
       this.score = 0;
-      this.x = -100;
-      this.y = -100;
       this.deathTimeout--;
       if (this.deathTimeout === 0) {
         this.x = this.gameModel.width / 2;
