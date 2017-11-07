@@ -36,8 +36,8 @@ class GameModel {
   }
 
   update() {
-    this.updateEnemies();
-    this.updateActiveBullets();
+    // this.updateEnemies();
+    // this.updateActiveBullets();
   }
 
   draw() {
@@ -65,23 +65,17 @@ class GameModel {
   }
 
   updateEnemies()  {
+    this.enemies = this.enemies.filter((e) => {
+      return e.y < this.height;
+    });
     if (this.enemies.length === 0) {
       this.initEnemies();
     }
     this.enemies.forEach((e) => {
-      e.y += e.speed;
 
     });
-    this.enemies = this.enemies.filter((e) => {
-      return e.y < this.height;
-    });
-    this.activeBullets.forEach((b) => {
-      if (b.collision(this.player.hitbox) && this.player.dead === false) {
-        b.dead = true;
-        this.handlePlayerDeath();
-      }
-    })
     this.enemies.forEach((e) => {
+      e.y += e.speed;
       if (e.canFire() && !e.dead) {
         this.activeBullets.push(e.fire({x: this.player.x + (this.player.width / 2), y: this.player.y + (this.player.height / 2)}));
       }
@@ -103,6 +97,13 @@ class GameModel {
             }
           }
         });
+      }
+    });
+
+    this.activeBullets.forEach((b) => {
+      if (b.collision(this.player.hitbox) && this.player.dead === false) {
+        b.dead = true;
+        this.handlePlayerDeath();
       }
     });
   }

@@ -69,34 +69,56 @@ var plr = new Player({
   score: score,
   sprite: playerImage,
   bullets: [],
-  speed: 8
+  speed: 8,
+  weapon: new Weapon({
+    bulletTimeout: 6,
+    bulletSpeed: 3
+  })
 });
 
 gameModel.player = plr;
 gameModel.score = score;
 gameModel.highScore = highScore;
-let weapon1 = new Weapon({
-  bulletTimeout: 6,
-  bulletSpeed: 3
-});
-plr.weapon = weapon1;
-
-var numEnemies = 2
-
-const audioFactory = new AudioFactory();
-gameModel.audioFactory = audioFactory;
-gameModel.initEnemies();
 gameModel.update = function() {
   gameModel.animator = window.requestAnimationFrame(gameModel.update);
   update();
   draw();
 }
 
+gameModel.initEnemies();
+
 function update() {
   plr.update(keysDown);
   gameModel.updateEnemies();
   gameModel.updateActiveBullets();
   updateStars();
+}
+
+function updateStars() {
+  stars.forEach(function(s) {
+    s.y += s.speed;
+    if (s.y > gameModel.height) {
+      s.y = -10;
+      s.x = getRandomInt(1, gameModel.width);
+    }
+  });
+}
+
+function draw() {
+  fillBackDefault(ctx, gameModel.viewport.width, gameModel.viewport.height);
+  drawPlayer();
+  drawText();
+  drawBullets();
+  drawStars();
+  drawEnemies();
+  drawActiveBullets();
+}
+
+function toViewCoord(x, y) {
+  return {
+    x: (x - gameModel.viewport.worldX),
+    y: (y - gameModel.viewport.worldY)
+  };
 }
 
 function drawPausedText() {
@@ -118,43 +140,20 @@ function drawText() {
   statsCtx.fillText('time: ' + gameModel.time, 20, 60);
 }
 
-function draw() {
-  fillBackDefault(ctx, gameModel.viewport.width, gameModel.viewport.height);
-  drawPlayer();
-  drawText();
-  drawBullets();
-  drawStars();
-  drawEnemies();
-  drawActiveBullets();
-}
-
 function drawPlayer() {
-
-  let viewCoord = {
-    x: (plr.x - gameModel.viewport.worldX),
-    y: (plr.y - gameModel.viewport.worldY)
-  };
+  let viewCoord = toViewCoord(plr.x, plr.y);
   let x = clamp(viewCoord.x, 0, gameModel.viewport.width - plr.width);
   let y = clamp(viewCoord.y, 0, gameModel.viewport.height - plr.height);
 
   if (!plr.dead) {
     ctx.drawImage(plr.sprite, x, viewCoord.y);
-    viewCoord = {
-      x: plr.hitbox.x - gameModel.viewport.worldX,
-      y: plr.hitbox.y - gameModel.viewport.worldY
-    };
+    viewCoord = toViewCoord(plr.hitbox.x, plr.hitbox.y);
     ctx.beginPath();
     ctx.rect(viewCoord.x, viewCoord.y, plr.hitbox.width, plr.hitbox.height);
     ctx.fillStyle = '#ff0000';
     ctx.fill();
-    // drawCircle(ctx, viewCoord.x + plr.width / 2 - plr.hitbox.width, viewCoord.y + plr.height / 2 + plr.hitbox.width, 14, `#f900a6`);
-    // drawCircle(ctx, viewCoord.x + plr.width / 2, viewCoord.y + plr.height / 2, 10, `#05e7fc`);
-    // drawCircle(ctx, viewCoord.x + plr.width / 2, viewCoord.y + plr.height / 2, 5, `#f900a6`);
   } else {
-    viewCoord = {
-      x: plr.hitbox.x - gameModel.viewport.worldX,
-      y: plr.hitbox.y - gameModel.viewport.worldY
-    };
+    viewCoord = toViewCoord(plr.hitbox.x, plr.hitbox.y);
     ctx.beginPath();
     ctx.rect(viewCoord.x, viewCoord.y, plr.hitbox.width, plr.hitbox.height);
     ctx.fillStyle = '#ff0000';
@@ -162,26 +161,9 @@ function drawPlayer() {
   }
 }
 
-function updateStars() {
-  stars.forEach(function(s) {
-    s.y += s.speed;
-    if (s.y > gameModel.height) {
-      s.y = -10;
-      s.x = getRandomInt(1, gameModel.width);
-    }
-  });
-}
-
-function toViewCoord(dist, x, y) {
-  return {
-    x: (x - gameModel.viewport.worldX),
-    y: (y - gameModel.viewport.worldY)
-  };
-}
-
 function drawStars() {
   stars.forEach(function(s) {
-    let viewCoord = toViewCoord(s.distance, s.x, s.y);
+    let viewCoord = toViewCoord(s.x, s.y);
     drawCircle(ctx, viewCoord.x, viewCoord.y, s.size, s.clr);
     if (s.trail) {
       for (var i = 0; i < s.trail; i++) {
@@ -233,10 +215,7 @@ function drawBullets() {
 
 function drawActiveBullets() {
   gameModel.activeBullets.forEach((b) => {
-    let viewCoord = {
-      x: b.x - gameModel.viewport.worldX,
-      y: b.y - gameModel.viewport.worldY
-    };
+    let viewCoord = viewCoord(b.x, b.y);
     drawRect(ctx, '#0000ff', viewCoord.x, viewCoord.y, 11);
   });
 }
