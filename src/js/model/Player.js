@@ -28,25 +28,23 @@ export default class Player extends Entity {
     this.weapon = weapon;
   }
 
-  updateViewport() {
-    // ViewPort.worldX = (this.x / this.gameModel.width) * this.gameModel.viewport.width;
-    // ViewPort.worldY = (this.y / this.gameModel.height) * this.gameModel.viewport.height;
-    ViewPort.worldX = this.x * 0.2;
-    ViewPort.worldY = this.y * 0.2;
-  }
-
   update(keysDown) {
+    let cameraSpeed = this.speed * 0.2;
     if (keysDown[65]) { //A
       this.x -= this.speed;
+      ViewPort.worldX -= cameraSpeed;
     }
     if (keysDown[87]) { //W
       this.y -= this.speed;
+      ViewPort.worldY -= cameraSpeed;
     }
     if (keysDown[68]) { //D
       this.x += this.speed;
+      ViewPort.worldX += cameraSpeed;
     }
     if (keysDown[83]) { //S
       this.y += this.speed;
+      ViewPort.worldY += cameraSpeed;
     }
 
     if (keysDown[32]) {
@@ -54,7 +52,8 @@ export default class Player extends Entity {
     } else {
       this.shooting = false;
     }
-
+    ViewPort.worldX = clamp(ViewPort.worldX, 0, this.gameModel.width - ViewPort.width);
+    ViewPort.worldY = clamp(ViewPort.worldY, 0, this.gameModel.height - ViewPort.height);
     this.x = clamp(this.x, 0, this.gameModel.width - this.width);
     this.y = clamp(this.y, 0, this.gameModel.height - this.height);
     this.hitbox.x = this.x + this.width/2  - (this.hitbox.width / 2);
@@ -76,7 +75,5 @@ export default class Player extends Entity {
         this.gameModel.initEnemies();
       }
     }
-
-    this.updateViewport();
   }
 }

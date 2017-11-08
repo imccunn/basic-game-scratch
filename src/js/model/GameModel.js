@@ -33,6 +33,7 @@ class GameModel {
     this.player;
 
     this.events = new EventEmitter();
+    this.initEnemies();
   }
 
   update() {

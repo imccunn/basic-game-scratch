@@ -39,7 +39,7 @@ domBody.addEventListener('keyup', function(e) {
   if (e.which === 80) {
     gameModel.active = !gameModel.active;
     if (gameModel.active === true) {
-      gameModel.animator = window.requestAnimationFrame(gameModel.update);
+      gameModel.animator = window.requestAnimationFrame(start);
       gameModel.handleEvent(GameEvents.PAUSE);
     } else {
       gameModel.handleEvent(GameEvents.PAUSE);
@@ -69,7 +69,7 @@ var plr = new Player({
   score: score,
   sprite: playerImage,
   bullets: [],
-  speed: 8,
+  speed: 5,
   weapon: new Weapon({
     bulletTimeout: 6,
     bulletSpeed: 3
@@ -80,18 +80,45 @@ gameModel.player = plr;
 gameModel.score = score;
 gameModel.highScore = highScore;
 gameModel.update = function() {
-  gameModel.animator = window.requestAnimationFrame(gameModel.update);
-  update();
-  draw();
-}
-
-gameModel.initEnemies();
-
-function update() {
   plr.update(keysDown);
+  updatePlayerBullets();
   gameModel.updateEnemies();
   gameModel.updateActiveBullets();
   updateStars();
+}
+
+function start() {
+  gameModel.animator = window.requestAnimationFrame(start);
+  gameModel.update();
+  draw();
+}
+
+var shotsFired = 0;
+function updatePlayerBullets() {
+  let bulletSpeed = 15;
+  plr.bullets = plr.bullets.filter(function(b) {
+    var stillActive = true;
+    if (b.y < 0 || b.dead) stillActive = false;
+    return stillActive;
+  });
+  for (var i = 0; i < plr.bullets.length; i++) {
+    let bul = plr.bullets[i];
+    bul.y -= bulletSpeed;
+  }
+  if (plr.weapon.ticksUntilNextFire !== 0) plr.weapon.ticksUntilNextFire -= 1;
+  if (!plr.dead && plr.shooting && plr.weapon.ticksUntilNextFire === 0) {
+      shotsFired++;
+      gameModel.handleEvent(GameEvents.WEAPON_FIRE);
+        plr.bullets.push(new Bullet({
+        x: plr.x + plr.width / 2,
+        y: plr.y,
+        width: 5,
+        height: 5,
+        dead: false,
+        color: '#ff0000'
+      }));
+      plr.weapon.ticksUntilNextFire = plr.weapon.getBulletTimeout();
+  }
 }
 
 function updateStars() {
@@ -107,11 +134,11 @@ function updateStars() {
 function draw() {
   fillBackDefault(ctx, gameModel.viewport.width, gameModel.viewport.height);
   drawPlayer();
-  drawText();
-  drawBullets();
+  drawPlayerBullets();
   drawStars();
   drawEnemies();
   drawActiveBullets();
+  drawText();
 }
 
 function toViewCoord(x, y) {
@@ -128,28 +155,16 @@ function drawPausedText() {
   ctx.fillText('Paused', gameModel.viewport.width / 2, gameModel.viewport.height / 2);
 }
 
-function drawText() {
-  statsCtx.beginPath();
-  statsCtx.rect(0, 0, 400, 400);
-  statsCtx.fillStyle = '#000';
-  statsCtx.fill();
-  statsCtx.font = '16px monospace';
-  statsCtx.fillStyle = '#ff0000';
-  statsCtx.fillText('score: ' + gameModel.player.score, 20, 20);
-  statsCtx.fillText('high Score: ' + gameModel.highScore, 20, 40);
-  statsCtx.fillText('time: ' + gameModel.time, 20, 60);
-}
-
 function drawPlayer() {
   let viewCoord = toViewCoord(plr.x, plr.y);
   let x = clamp(viewCoord.x, 0, gameModel.viewport.width - plr.width);
-  let y = clamp(viewCoord.y, 0, gameModel.viewport.height - plr.height);
+  let y = clamp(viewCoord.y, 1, gameModel.viewport.height - plr.height);
 
   if (!plr.dead) {
-    ctx.drawImage(plr.sprite, x, viewCoord.y);
+    ctx.drawImage(plr.sprite, x, y);
     viewCoord = toViewCoord(plr.hitbox.x, plr.hitbox.y);
     ctx.beginPath();
-    ctx.rect(viewCoord.x, viewCoord.y, plr.hitbox.width, plr.hitbox.height);
+    ctx.rect(x + plr.width/2 - plr.hitbox.width/2, y + plr.height/2 - plr.hitbox.height/2, plr.hitbox.width, plr.hitbox.height);
     ctx.fillStyle = '#ff0000';
     ctx.fill();
   } else {
@@ -174,39 +189,13 @@ function drawStars() {
   });
 }
 
-var shotsFired = 0;
-var modifier = 1;
-function drawBullets() {
-  let bulletSpeed = 15;
-  plr.bullets = plr.bullets.filter(function(b) {
-    var stillActive = true;
-    if (b.y < 0 || b.dead) stillActive = false;
-    return stillActive;
-  });
+function drawPlayerBullets() {
   for (var i = 0; i < plr.bullets.length; i++) {
     let bul = plr.bullets[i];
-    bul.y -= bulletSpeed;
-  }
-  if (plr.weapon.ticksUntilNextFire !== 0) plr.weapon.ticksUntilNextFire -= modifier;
-  if (!plr.dead && plr.shooting && plr.weapon.ticksUntilNextFire === 0) {
-      shotsFired++;
-      gameModel.handleEvent(GameEvents.WEAPON_FIRE);
-        plr.bullets.push(new Bullet({
-        x: plr.x + plr.width / 2,
-        y: plr.y,
-        width: 5,
-        height: 5,
-        dead: false,
-        color: '#ff0000'
-      }));
-      plr.weapon.ticksUntilNextFire = plr.weapon.getBulletTimeout();
-  }
-  for (var i = 0; i < plr.bullets.length; i++) {
-      let bul = plr.bullets[i];
-      let viewCoord = toViewCoord(bul.x, bul.y);
-      if (!bul.dead) {
-        drawRect(ctx, bul.color, viewCoord.x, viewCoord.y, 8);
-      }
+    let viewCoord = toViewCoord(bul.x, bul.y);
+    if (!bul.dead) {
+      drawRect(ctx, bul.color, viewCoord.x, viewCoord.y, 8);
+    }
   }
 }
 
@@ -219,10 +208,7 @@ function drawActiveBullets() {
 
 function drawEnemies() {
   gameModel.enemies.forEach(function(e) {
-    let viewCoord = {
-      x: e.x - gameModel.viewport.worldX,
-      y: e.y - gameModel.viewport.worldY
-    };
+    let viewCoord = toViewCoord(e.x, e.y);
     if (!e.dead) drawRect(ctx, '#00ff00', viewCoord.x, viewCoord.y, e.width);
     e.weapon.bullets.forEach((b) => {
       let viewCoord = toViewCoord(b.x, b.y);
@@ -231,7 +217,19 @@ function drawEnemies() {
   });
 }
 
+function drawText() {
+  statsCtx.beginPath();
+  statsCtx.rect(0, 0, 400, 400);
+  statsCtx.fillStyle = '#000';
+  statsCtx.fill();
+  statsCtx.font = '16px monospace';
+  statsCtx.fillStyle = '#ff0000';
+  statsCtx.fillText('score: ' + gameModel.player.score, 20, 20);
+  statsCtx.fillText('high Score: ' + gameModel.highScore, 20, 40);
+  statsCtx.fillText('time: ' + gameModel.time, 20, 60);
+}
+
 gameModel.audioFactory.init()
   .then(assets => {
-    gameModel.update();
+    start();
   });

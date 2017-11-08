@@ -2,7 +2,7 @@
 import { getRand, getRandomInt } from '../util';
 import gameModel from './GameModel';
 
-const numStars = 200;
+const numStars = 500;
 let stars = [];
 
 for (let i = 0; i < numStars; i++) {
@@ -28,7 +28,7 @@ for (let i = 0; i < numStars; i++) {
 		y: getRandomInt(1, gameModel.height),
 		distance: distance,
 		size: size,
-		speed: (0.3 * distance),
+		speed: (12 * distance),
 		trail: trail,
 		clr: clr
 	});
