@@ -203,10 +203,7 @@ function drawBullets() {
   }
   for (var i = 0; i < plr.bullets.length; i++) {
       let bul = plr.bullets[i];
-      let viewCoord = {
-        x: (bul.x - gameModel.viewport.worldX),
-        y: (bul.y - gameModel.viewport.worldY)
-      }
+      let viewCoord = toViewCoord(bul.x, bul.y);
       if (!bul.dead) {
         drawRect(ctx, bul.color, viewCoord.x, viewCoord.y, 8);
       }
@@ -215,7 +212,7 @@ function drawBullets() {
 
 function drawActiveBullets() {
   gameModel.activeBullets.forEach((b) => {
-    let viewCoord = viewCoord(b.x, b.y);
+    let viewCoord = toViewCoord(b.x, b.y);
     drawRect(ctx, '#0000ff', viewCoord.x, viewCoord.y, 11);
   });
 }
@@ -228,10 +225,7 @@ function drawEnemies() {
     };
     if (!e.dead) drawRect(ctx, '#00ff00', viewCoord.x, viewCoord.y, e.width);
     e.weapon.bullets.forEach((b) => {
-      let viewCoord = {
-        x: b.x - gameModel.viewport.worldX,
-        y: b.y - gameModel.viewport.worldY
-      };
+      let viewCoord = toViewCoord(b.x, b.y);
       drawRect(ctx, '#0000ff', viewCoord.x, viewCoord.y, 11);
     });
   });
