@@ -86,8 +86,22 @@ gameModel.update = function() {
   gameModel.updateActiveBullets();
   updateStars();
 }
-
+let delta = 0;
+let lastTime = 0;
+let updateTime = 0;
+let updateFrames = 0;
+let frameRate = 0;
 function start() {
+  var now = (new Date()).getTime();
+  delta = now - lastTime;
+  lastTime = now;
+  updateTime += delta;
+  updateFrames++
+  if (updateTime >= 1000) {
+    frameRate = (1000 * updateFrames / updateTime).toFixed(2);
+    updateFrames = 0;
+    updateTime = 0;
+  }
   gameModel.animator = window.requestAnimationFrame(start);
   gameModel.update();
   draw();
@@ -227,6 +241,8 @@ function drawText() {
   statsCtx.fillText('score: ' + gameModel.player.score, 20, 20);
   statsCtx.fillText('high Score: ' + gameModel.highScore, 20, 40);
   statsCtx.fillText('time: ' + gameModel.time, 20, 60);
+  statsCtx.fillText('fps: ' + frameRate, 20, 80);
+  statsCtx.fillText('updateTime: ' + updateTime, 20, 100);
 }
 
 gameModel.audioFactory.init()
