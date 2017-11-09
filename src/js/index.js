@@ -86,12 +86,13 @@ gameModel.update = function() {
   gameModel.updateActiveBullets();
   updateStars();
 }
+
 let delta = 0;
 let lastTime = 0;
 let updateTime = 0;
 let updateFrames = 0;
 let frameRate = 0;
-function start() {
+function measureFrameRate() {
   var now = (new Date()).getTime();
   delta = now - lastTime;
   lastTime = now;
@@ -102,9 +103,13 @@ function start() {
     updateFrames = 0;
     updateTime = 0;
   }
+}
+
+function start() {
   gameModel.animator = window.requestAnimationFrame(start);
   gameModel.update();
   draw();
+  measureFrameRate();
 }
 
 var shotsFired = 0;
