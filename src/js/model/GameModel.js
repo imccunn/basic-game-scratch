@@ -69,12 +69,9 @@ class GameModel {
     this.enemies = this.enemies.filter((e) => {
       return e.y < this.height;
     });
-    if (this.enemies.length === 0) {
+    if (this.enemies.length === 0 && !this.player.dead) {
       this.initEnemies();
     }
-    this.enemies.forEach((e) => {
-
-    });
     this.enemies.forEach((e) => {
       e.y += e.speed;
       if (e.canFire() && !e.dead) {
@@ -131,6 +128,8 @@ class GameModel {
     if (this.player.score > this.highScore) this.highScore = this.player.score;
     this.player.score = 0;
     this.time = 0;
+    this.activeBullets = [];
+    this.enemies = [];
     clearInterval(this.timer);
   }
 

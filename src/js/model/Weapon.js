@@ -17,7 +17,7 @@ export default class Weapon extends Entity {
       this.bullets.push(new Bullet({
         x: this.x + this.width / 2,
         y: this.y + this.width,
-        speed: 2,
+        speed: 12,
         width: 5,
         height: 5,
         dead: false,
