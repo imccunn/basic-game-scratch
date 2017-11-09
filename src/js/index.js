@@ -177,7 +177,7 @@ function drawPausedText() {
 function drawPlayer() {
   let viewCoord = toViewCoord(plr.x, plr.y);
   let x = clamp(viewCoord.x, 0, gameModel.viewport.width - plr.width);
-  let y = clamp(viewCoord.y, 1, gameModel.viewport.height - plr.height);
+  let y = clamp(viewCoord.y, 0, gameModel.viewport.height - plr.height);
 
   if (!plr.dead) {
     ctx.drawImage(plr.sprite, x, y);
@@ -202,7 +202,7 @@ function drawStars() {
     if (s.trail) {
       for (var i = 0; i < s.trail; i++) {
         var op = (0.05 * i + 1);
-        drawRect(ctx, 'rgba(255, 0, 155, ' + op + ')', viewCoord.x, s.y - i * 3, s.size - (0.23 * i));
+        drawRect(ctx, 'rgba(255, 0, 155, ' + op + ')', viewCoord.x, s.y + i * 3, s.size - (0.23 * i));
       }
     }
   });
@@ -248,6 +248,8 @@ function drawText() {
   statsCtx.fillText('time: ' + gameModel.time, 20, 60);
   statsCtx.fillText('fps: ' + frameRate, 20, 80);
   statsCtx.fillText('updateTime: ' + updateTime, 20, 100);
+  statsCtx.fillText(`View: ${gameModel.viewport.worldX}, ${gameModel.viewport.worldY}`, 20, 120)
+  statsCtx.fillText(`View: ${gameModel.player.x}, ${gameModel.player.y}`, 20, 140)
 }
 
 gameModel.audioFactory.init()

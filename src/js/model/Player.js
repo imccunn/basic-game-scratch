@@ -36,7 +36,7 @@ export default class Player extends Entity {
     }
     if (keysDown[87]) { //W
       this.y -= this.speed;
-      ViewPort.worldY -= cameraSpeed;
+      // ViewPort.worldY -= cameraSpeed;
     }
     if (keysDown[68]) { //D
       this.x += this.speed;
@@ -44,7 +44,7 @@ export default class Player extends Entity {
     }
     if (keysDown[83]) { //S
       this.y += this.speed;
-      ViewPort.worldY += cameraSpeed;
+      // ViewPort.worldY += cameraSpeed;
     }
 
     if (keysDown[32]) {
@@ -55,7 +55,7 @@ export default class Player extends Entity {
     ViewPort.worldX = clamp(ViewPort.worldX, 0, this.gameModel.width - ViewPort.width);
     ViewPort.worldY = clamp(ViewPort.worldY, 0, this.gameModel.height - ViewPort.height);
     this.x = clamp(this.x, 0, this.gameModel.width - this.width);
-    this.y = clamp(this.y, 0, this.gameModel.height - this.height);
+    this.y = clamp(this.y, 0, ViewPort.height + ViewPort.worldY - this.height);
     this.hitbox.x = this.x + this.width/2  - (this.hitbox.width / 2);
     this.hitbox.y = this.y + this.height/2 - (this.hitbox.height / 2);
 
