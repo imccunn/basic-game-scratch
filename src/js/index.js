@@ -151,7 +151,7 @@ function updateStars() {
 }
 
 function draw() {
-  fillBackDefault(ctx, gameModel.viewport.width, gameModel.viewport.height);
+  fillBackDefault(gameModel.viewport.width, gameModel.viewport.height);
   drawPlayer();
   drawPlayerBullets();
   drawStars();
@@ -198,11 +198,11 @@ function drawPlayer() {
 function drawStars() {
   stars.forEach(function(s) {
     let viewCoord = toViewCoord(s.x, s.y);
-    drawCircle(ctx, viewCoord.x, viewCoord.y, s.size, s.clr);
+    drawCircle(viewCoord.x, viewCoord.y, s.size, s.clr);
     if (s.trail) {
       for (var i = 0; i < s.trail; i++) {
         var op = (0.05 * i + 1);
-        drawRect(ctx, 'rgba(255, 0, 155, ' + op + ')', viewCoord.x, s.y + i * 3, s.size - (0.23 * i));
+        drawRect('rgba(255, 0, 155, ' + op + ')', viewCoord.x, s.y + i * 3, s.size - (0.23 * i));
       }
     }
   });
@@ -213,7 +213,7 @@ function drawPlayerBullets() {
     let bul = plr.bullets[i];
     let viewCoord = toViewCoord(bul.x, bul.y);
     if (!bul.dead) {
-      drawRect(ctx, bul.color, viewCoord.x, viewCoord.y, 8);
+      drawRect(bul.color, viewCoord.x, viewCoord.y, 8);
     }
   }
 }
@@ -221,17 +221,17 @@ function drawPlayerBullets() {
 function drawActiveBullets() {
   gameModel.activeBullets.forEach((b) => {
     let viewCoord = toViewCoord(b.x, b.y);
-    drawRect(ctx, '#0000ff', viewCoord.x, viewCoord.y, 11);
+    drawRect('#0000ff', viewCoord.x, viewCoord.y, 11);
   });
 }
 
 function drawEnemies() {
   gameModel.enemies.forEach(function(e) {
     let viewCoord = toViewCoord(e.x, e.y);
-    if (!e.dead) drawRect(ctx, '#00ff00', viewCoord.x, viewCoord.y, e.width);
+    if (!e.dead) drawRect('#00ff00', viewCoord.x, viewCoord.y, e.width);
     e.weapon.bullets.forEach((b) => {
       let viewCoord = toViewCoord(b.x, b.y);
-      drawRect(ctx, '#0000ff', viewCoord.x, viewCoord.y, 11);
+      drawRect('#0000ff', viewCoord.x, viewCoord.y, 11);
     });
   });
 }
