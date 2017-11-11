@@ -249,7 +249,7 @@ function drawText() {
   statsCtx.fillText('fps: ' + frameRate, 20, 80);
   statsCtx.fillText('updateTime: ' + updateTime, 20, 100);
   statsCtx.fillText(`View: ${gameModel.viewport.worldX}, ${gameModel.viewport.worldY}`, 20, 120)
-  statsCtx.fillText(`View: ${gameModel.player.x}, ${gameModel.player.y}`, 20, 140)
+  statsCtx.fillText(`plr pos: ${gameModel.player.x}, ${gameModel.player.y}`, 20, 140);
 }
 
 gameModel.audioFactory.init()

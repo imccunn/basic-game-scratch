@@ -96,10 +96,14 @@ class GameModel {
           }
         });
       }
+      if (e.collision(this.player.hitbox) && this.player.dead === false ) {
+        e.dead = true;
+        this.handlePlayerDeath();
+      }
     });
 
     this.activeBullets.forEach((b) => {
-      if (b.collision(this.player.hitbox) && this.player.dead === false) {
+      if (b.collision(this.player.hitbox) && this.player.dead === false ) {
         b.dead = true;
         this.handlePlayerDeath();
       }
