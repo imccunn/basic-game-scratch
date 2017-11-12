@@ -26,4 +26,4 @@ export {
   fillBackDefault,
   drawRect,
   drawCircle
-}
+};

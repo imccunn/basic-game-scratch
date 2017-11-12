@@ -54,7 +54,7 @@ domBody.addEventListener('keyup', function(e) {
 });
 
 var domStats = document.getElementById('stats');
-var statsCtx = domStats.getContext('2d')
+var statsCtx = domStats.getContext('2d');
 domStats.setAttribute('width', 200);
 domStats.setAttribute('height', 200);
 
@@ -85,7 +85,7 @@ gameModel.update = function() {
   gameModel.updateEnemies();
   gameModel.updateActiveBullets();
   updateStars();
-}
+};
 
 let delta = 0;
 let lastTime = 0;
@@ -97,7 +97,7 @@ function measureFrameRate() {
   delta = now - lastTime;
   lastTime = now;
   updateTime += delta;
-  updateFrames++
+  updateFrames++;
   if (updateTime >= 1000) {
     frameRate = (1000 * updateFrames / updateTime).toFixed(2);
     updateFrames = 0;
@@ -243,12 +243,12 @@ function drawText() {
   statsCtx.fill();
   statsCtx.font = '16px monospace';
   statsCtx.fillStyle = '#ff0000';
-  statsCtx.fillText('score: ' + gameModel.player.score, 20, 20);
-  statsCtx.fillText('high Score: ' + gameModel.highScore, 20, 40);
-  statsCtx.fillText('time: ' + gameModel.time, 20, 60);
-  statsCtx.fillText('fps: ' + frameRate, 20, 80);
-  statsCtx.fillText('updateTime: ' + updateTime, 20, 100);
-  statsCtx.fillText(`View: ${gameModel.viewport.worldX}, ${gameModel.viewport.worldY}`, 20, 120)
+  statsCtx.fillText(`score: ${gameModel.player.score}`, 20, 20);
+  statsCtx.fillText(`high Score: ${gameModel.highScore}`, 20, 40);
+  statsCtx.fillText(`time: ${gameModel.time}`, 20, 60);
+  statsCtx.fillText(`fps: ${frameRate}`, 20, 80);
+  statsCtx.fillText(`updateTime: ${updateTime}`, 20, 100);
+  statsCtx.fillText(`View: ${gameModel.viewport.worldX}, ${gameModel.viewport.worldY}`, 20, 120);
   statsCtx.fillText(`plr pos: ${gameModel.player.x}, ${gameModel.player.y}`, 20, 140);
 }
 

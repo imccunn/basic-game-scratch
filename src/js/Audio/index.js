@@ -4,7 +4,7 @@ var context = new AudioContext();
 
 export function loadSound(id) {
   return new Promise((resolve, reject) => {
-    let path = `audio/${id}.mp3`
+    let path = `audio/${id}.mp3`;
     let request = new XMLHttpRequest();
     request.open('GET', path, true);
     request.responseType = 'arraybuffer';

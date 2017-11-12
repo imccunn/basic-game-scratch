@@ -6,10 +6,11 @@
   "author": "imccunn <ianmcunn@gmail.com>",
   "license": "MIT",
   "scripts": {
+    "lint": "./node_modules/eslint/bin/eslint.js src/",
     "dev": "./node_modules/webpack-dev-server/bin/webpack-dev-server.js"
   },
   "dependencies": {
-    "eslint": "^4.6.1",
+    "eslint": "^4.11.0",
     "express": "^4.15.4"
   },
   "devDependencies": {

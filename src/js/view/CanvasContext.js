@@ -10,4 +10,4 @@ const ctx = c.getContext('2d');
 export {
   c,
   ctx
-}
+};

@@ -5,7 +5,7 @@ import ViewPort from '../view/ViewPort';
 
 export default class Player extends Entity {
   constructor(opts) {
-    var opts = opts || {}
+    var opts = opts || {};
     super(opts);
     this.sprite = opts.sprite || null;
     this.weapon = opts.weapon || null;
