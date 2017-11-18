@@ -2,9 +2,9 @@
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
 var context = new AudioContext();
 
-export function loadSound(id) {
+export function loadSound(dir, id) {
   return new Promise((resolve, reject) => {
-    let path = `audio/${id}.mp3`;
+    let path = `${dir}/${id}.mp3`;
     let request = new XMLHttpRequest();
     request.open('GET', path, true);
     request.responseType = 'arraybuffer';

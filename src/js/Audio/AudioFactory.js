@@ -9,11 +9,11 @@ export default class AudioFactory {
   }
 
   init() {
-    return loadSound('weapon-fire')
+    return loadSound('audio/', 'weapon-fire')
       .then(buffer => this.weaponFires = buffer)
-      .then(loadSound.bind(null, 'ship-explosion'))
+      .then(loadSound.bind(null, 'audio/', 'ship-explosion'))
       .then(buffer => this.shipExplodes = buffer)
-      .then(loadSound.bind(null, 'pause-game'))
+      .then(loadSound.bind(null, 'audio/', 'pause-game'))
       .then(buffer => this.pauseGame = buffer);
   }
 
