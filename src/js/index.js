@@ -71,7 +71,7 @@ var plr = new Player({
   bullets: [],
   speed: 5,
   weapon: new Weapon({
-    bulletTimeout: 6,
+    fireRate: 7,
     bulletSpeed: 3
   })
 });
@@ -124,6 +124,8 @@ function updatePlayerBullets() {
     let bul = plr.bullets[i];
     bul.y -= bulletSpeed;
   }
+  // TODO: Instead of adding bullets to the player bullets list, we'll want to pop them
+  // from the player's weapon like enemy weapons. [IDM]
   if (plr.weapon.ticksUntilNextFire !== 0) plr.weapon.ticksUntilNextFire -= 1;
   if (!plr.dead && plr.shooting && plr.weapon.ticksUntilNextFire === 0) {
       shotsFired++;

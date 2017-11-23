@@ -5,7 +5,7 @@ export default class Weapon extends Entity {
 
   constructor(opts) {
     super(opts);
-    this.BULLET_TIMEOUT = opts.bulletTimeout || 5;
+    this.BULLET_TIMEOUT = opts.fireRate || 22;
     this.ticksUntilNextFire = 0;
     this.bulletSpeed = opts.bulletSpeed;
     this.ammo = opts.ammo || 12;
