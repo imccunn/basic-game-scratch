@@ -27,7 +27,7 @@ class GameModel {
       }
     }, 1000);
 
-    this.numEnemies = 10;
+    this.numEnemies = 5;
     this.enemies;
     this.activeBullets = [];
     this.player;
@@ -67,18 +67,18 @@ class GameModel {
 
   updateEnemies()  {
     this.enemies = this.enemies.filter((e) => {
-      return e.y < this.height;
+      return e.y < this.height && !e.dead;
     });
     if (this.enemies.length === 0 && !this.player.dead) {
       this.initEnemies();
     }
-    this.enemies.forEach((e) => {
-      e.y += e.speed;
-      if (e.canFire() && !e.dead) {
-        this.activeBullets.push(e.fire({x: this.player.x + (this.player.width / 2), y: this.player.y + (this.player.height / 2)}));
+    this.enemies.forEach((enemy) => {
+      enemy.y += enemy.speed;
+      if (enemy.canFire() && !enemy.dead) {
+        this.activeBullets.push(enemy.fire({x: this.player.x + (this.player.width / 2), y: this.player.y + (this.player.height / 2)}));
       }
 
-      e.weapon.bullets.forEach((b) => {
+      enemy.weapon.bullets.forEach((b) => {
         if (b.collision(this.player.hitbox) && this.player.dead === false) {
           b.dead = true;
           this.handlePlayerDeath();
@@ -86,18 +86,18 @@ class GameModel {
       });
       if (this.player.bullets) {
         this.player.bullets.forEach((b) => {
-          if (b.collision(e)) {
-            if (!e.dead) {
+          if (b.collision(enemy)) {
+            if (!enemy.dead) {
               this.handleEvent(GameEvents.EXPLOSION);
               b.dead = true;
-              e.dead = true;
+              enemy.dead = true;
               this.player.score++;
             }
           }
         });
       }
-      if (e.collision(this.player.hitbox) && this.player.dead === false ) {
-        e.dead = true;
+      if (enemy.collision(this.player.hitbox) && !this.player.dead) {
+        enemy.dead = true;
         this.handlePlayerDeath();
       }
     });

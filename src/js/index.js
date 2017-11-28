@@ -20,7 +20,6 @@ import {
 
 var stars = initStars();
 
-var score = 0;
 var highScore = 0;
 let FPS = 10;
 let animator = null;
@@ -66,7 +65,7 @@ var plr = new Player({
   y: (gameModel.height / 2),
   width: 85,
   height: 85,
-  score: score,
+  score: 0,
   sprite: playerImage,
   bullets: [],
   speed: 5,
@@ -77,7 +76,6 @@ var plr = new Player({
 });
 
 gameModel.player = plr;
-gameModel.score = score;
 gameModel.highScore = highScore;
 
 function updateAll() {
@@ -130,15 +128,15 @@ function updatePlayerBullets() {
   if (!plr.dead && plr.shooting && plr.weapon.ticksUntilNextFire === 0) {
       shotsFired++;
       gameModel.handleEvent(GameEvents.WEAPON_FIRE);
-        plr.bullets.push(new Bullet({
-        x: plr.x + plr.width / 2,
-        y: plr.y,
-        width: 5,
-        height: 5,
-        dead: false,
-        color: '#ff0000'
-      }));
-      plr.weapon.ticksUntilNextFire = plr.weapon.getBulletTimeout();
+      plr.bullets.push(new Bullet({
+      x: plr.x + plr.width / 2,
+      y: plr.y,
+      width: 5,
+      height: 5,
+      dead: false,
+      color: '#ff0000'
+    }));
+    plr.weapon.ticksUntilNextFire = plr.weapon.getBulletTimeout();
   }
 }
 
@@ -231,10 +229,10 @@ function drawEnemies() {
   gameModel.enemies.forEach(function(e) {
     let viewCoord = toViewCoord(e.x, e.y);
     if (!e.dead) drawRect('#00ff00', viewCoord.x, viewCoord.y, e.width);
-    e.weapon.bullets.forEach((b) => {
-      let viewCoord = toViewCoord(b.x, b.y);
-      drawRect('#0000ff', viewCoord.x, viewCoord.y, 11);
-    });
+    // e.weapon.bullets.forEach((b) => {
+    //   let viewCoord = toViewCoord(b.x, b.y);
+    //   drawRect('#0000ff', viewCoord.x, viewCoord.y, 11);
+    // });
   });
 }
 
