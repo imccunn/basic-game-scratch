@@ -79,11 +79,11 @@ var plr = new Player({
 gameModel.player = plr;
 gameModel.score = score;
 gameModel.highScore = highScore;
-gameModel.update = function() {
+
+function updateAll() {
   plr.update(keysDown);
   updatePlayerBullets();
-  gameModel.updateEnemies();
-  gameModel.updateActiveBullets();
+  gameModel.update();
   updateStars();
 };
 
@@ -107,7 +107,7 @@ function measureFrameRate() {
 
 function start() {
   gameModel.animator = window.requestAnimationFrame(start);
-  gameModel.update();
+  updateAll();
   draw();
   measureFrameRate();
 }

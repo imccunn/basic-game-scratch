@@ -37,8 +37,8 @@ class GameModel {
   }
 
   update() {
-    // this.updateEnemies();
-    // this.updateActiveBullets();
+    this.updateEnemies();
+    this.updateActiveBullets();
   }
 
   draw() {
